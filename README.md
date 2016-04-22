@@ -31,9 +31,9 @@ export Connector(App);
 import { subscribe } from 'horizon-react';
 import Todo from './Todo';
 
-const mapData = {
+const mapData = (props) => ({
   todos: { collection: 'todos', query: {} }
-};
+});
 
 const TodoList = (props) => (
   <ul>
