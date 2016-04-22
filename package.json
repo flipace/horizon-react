@@ -1,6 +1,6 @@
 {
   "name": "horizon-react",
-  "version": "0.0.1-alpha1",
+  "version": "0.0.1-alpha5",
   "description": "React bindings for horizon",
   "main": "./lib/index.js",
   "scripts": {

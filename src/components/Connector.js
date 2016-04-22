@@ -46,13 +46,11 @@ export default (ConnectedComponent) => class extends Component {
   }
 
   renderConnected() {
-    return (
-      <ConnectedComponent
-        {...this.props}
-        horizonConnected={this.state.connected}
-        horizon={this.horizon}
-      />
-    );
+    return createElement(ConnectedComponent, {
+      ...this.props,
+      horizonConnected: this.state.connected,
+      horizon: this.horizon
+    });
   }
 
   renderLoading() {

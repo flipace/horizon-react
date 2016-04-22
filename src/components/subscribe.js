@@ -1,4 +1,4 @@
-import { Component, PropTypes } from 'react';
+import { Component, PropTypes, createElement } from 'react';
 import hoistStatics from 'hoist-non-react-statics';
 
 export default function subscribe(mapData) {
@@ -63,13 +63,11 @@ export default function subscribe(mapData) {
       }
 
       render() {
-        return (
-          <TargetComponent
-            {...this.props}
-            {...this.state.data}
-            horizon={this.context.horizon}
-          />
-        );
+        return createElement(TargetComponent, {
+            ...this.props,
+            ...this.state.data,
+            horizon: this.context.horizon
+        });
       }
     }
 
