@@ -15,7 +15,7 @@ Similarly to react-redux, you'll have to first wrap a root component with a
 data by using ```subscribe```.
 
 **Example Root component:**
-```
+```JavaScript
 import { Connector } from 'horizon-react';
 import TodoList from './components/TodoList';
 
@@ -27,7 +27,7 @@ export Connector(App);
 ```
 
 **Example Subscribed component:**
-```
+```JavaScript
 import { subscribe } from 'horizon-react';
 import Todo from './Todo';
 
