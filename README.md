@@ -1,5 +1,9 @@
 [![npm version](https://badge.fury.io/js/horizon-react.svg)](https://badge.fury.io/js/horizon-react)
 [![GitHub issues](https://img.shields.io/github/issues/flipace/horizon-react.svg)](https://github.com/flipace/horizon-react/issues)
+
+[![bitHound Overall Score](https://www.bithound.io/github/flipace/horizon-react/badges/score.svg)](https://www.bithound.io/github/flipace/horizon-react)
+[![bitHound Dependencies](https://www.bithound.io/github/flipace/horizon-react/badges/dependencies.svg)](https://www.bithound.io/github/flipace/horizon-react/master/dependencies/npm)
+[![bitHound Code](https://www.bithound.io/github/flipace/horizon-react/badges/code.svg)](https://www.bithound.io/github/flipace/horizon-react)
 # horizon-react
 React bindings for [rethinkdb/horizon](https://github.com/rethinkdb/horizon).
 
