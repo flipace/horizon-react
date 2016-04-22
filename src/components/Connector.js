@@ -23,24 +23,22 @@ export default (ConnectedComponent) => class extends Component {
     super(props);
 
     this.state = {
-      connected: false
+      ready: false
     };
 
     this.horizon = Horizon({ secure: props.secure, authType: props.authType });
-    this.horizon.onConnected(this.onConnected);
+    this.horizon.onReady(this.onReady);
     this.horizon.connect();
   }
 
-  onConnected = () => {
-    console.log("Connected to horizon server!");
-
+  onReady = () => {
     this.setState({
-      connected: true
+      ready: true
     });
   };
 
   render() {
-    return this.state.connected
+    return this.state.ready
     ? this.renderConnected()
     : this.renderLoading();
   }
@@ -48,7 +46,7 @@ export default (ConnectedComponent) => class extends Component {
   renderConnected() {
     return createElement(ConnectedComponent, {
       ...this.props,
-      horizonConnected: this.state.connected,
+      horizonReady: this.state.ready,
       horizon: this.horizon
     });
   }
