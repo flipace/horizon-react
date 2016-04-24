@@ -1,16 +1,13 @@
 import { PropTypes, Component, createElement } from 'react';
+import { render } from 'react-dom';
+import isPlainObject from 'is-plain-object';
 import Horizon from '@horizon/client';
 
 /**
  * Initializes connection to Horizon server and passes
  * hzConnected prop to enhanced component.
  */
-export default (ConnectedComponent) => class extends Component {
-  static defaultProps = {
-    secure: false,
-    authType: 'anonymous'
-  };
-
+export default (horizonProps = false, ConnectedComponent) => class extends Component {
   static childContextTypes = {
     horizon: PropTypes.func
   };
@@ -23,30 +20,47 @@ export default (ConnectedComponent) => class extends Component {
     super(props);
 
     this.state = {
-      ready: false
+      hzStatus: false
     };
 
-    this.horizon = Horizon({ secure: props.secure, authType: props.authType });
-    this.horizon.onReady(this.onReady);
+    this.horizon = Horizon(
+      isPlainObject(horizonProps)
+      ? horizonProps
+      : {}
+    );
+
+    // set up connection status callbacks
+    this.horizon.onDisconnected(this.onStatus);
+    this.horizon.onConnected(this.onStatus);
+    this.horizon.onReady(this.onStatus);
+    this.horizon.onSocketError(this.onStatus);
+
     this.horizon.connect();
   }
 
-  onReady = () => {
-    this.setState({
-      ready: true
-    });
+  onStatus = (status) => {
+    try {
+      this.setState({
+        hzStatus: status,
+      });
+    } catch(e) {
+      console.error(e);
+    }
   };
 
   render() {
-    return this.state.ready
+    return this.state.hzStatus.type === Horizon.constants.connection.STATUS_READY.type
     ? this.renderConnected()
     : this.renderLoading();
   }
 
   renderConnected() {
-    return createElement(ConnectedComponent, {
+    const component = isPlainObject(horizonProps)
+    ? ConnectedComponent
+    : horizonProps;
+
+    return createElement(component, {
       ...this.props,
-      horizonReady: this.state.ready,
       horizon: this.horizon
     });
   }
