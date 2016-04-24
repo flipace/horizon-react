@@ -1,10 +1,10 @@
 {
   "name": "horizon-react",
-  "version": "0.0.1-alpha7",
+  "version": "0.1.0",
   "description": "React bindings for horizon",
   "main": "./lib/index.js",
   "scripts": {
-    "build:lib": "babel src --out-dir lib",
+    "build:lib": "NODE_ENV=development babel src --out-dir lib",
     "build:umd": "cross-env NODE_ENV=development webpack src/index.js dist/horizon-react.js",
     "build:umd:min": "cross-env NODE_ENV=production webpack src/index.js dist/horizon-react.min.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && node ./prepublish",
@@ -19,7 +19,7 @@
     "react",
     "horizon"
   ],
-  "author": "Patrick Neschkudla",
+  "author": "Patrick Neschkudla <neschkudla@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/flipace/horizon-react/issues"
@@ -44,7 +44,9 @@
   },
   "dependencies": {
     "@horizon/client": "^0.0.4-3",
-    "hoist-non-react-statics": "^1.0.3"
+    "hoist-non-react-statics": "^1.0.3",
+    "is-plain-object": "^2.0.1",
+    "react-dom": "^15.0.1"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0"

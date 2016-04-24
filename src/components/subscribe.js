@@ -1,7 +1,10 @@
 import { Component, PropTypes, createElement } from 'react';
 import hoistStatics from 'hoist-non-react-statics';
 
-export default function subscribe(mapData) {
+/**
+ * Subscribes to data specified in mapData
+ */
+export default function subscribe(mapData = () => ({})) {
   return (TargetComponent) => {
     class DataSubscriber extends Component {
       static contextTypes = {
@@ -11,37 +14,77 @@ export default function subscribe(mapData) {
       constructor(props) {
         super(props);
 
-        this.subscriptions = mapData(props);
-
         // generate data object which will hold subscription documents
-        const data = Object.keys(this.subscriptions).reduce( (acc, name) => {
-          acc[name] = [];
-          return acc;
-        }, {});
+        const data = this.getDataNames(props);
 
         this.state = {
           subscribed: false,
           updates: 0,
           data
         };
+
+        // this will hold all active subscriptions
+        this.subscriptions = [];
+      }
+
+      getDataNames(props) {
+        if (Array.isArray(mapData)) {
+          return mapData.reduce(
+            (acc, s) => { acc[s.name] = []; return acc; },
+            {}
+          );
+        } else {
+          return Object.keys(mapData(props)).reduce( (acc, name) => {
+            acc[name] = [];
+            return acc;
+          }, {});
+        }
       }
 
       componentDidMount() {
         if (!this.state.subscribed && this.context.horizon) {
-          setTimeout(() => {
-            this.subscribe();
-          }, 0);
+          this.subscribe();
         }
       }
 
+      /**
+       * Walk through all elements in mapData and set up
+       * the subscriptions which should fire setState() every
+       * time data changes.
+       */
       subscribe() {
-        const subscriptions = mapData(this.props);
+        if (Array.isArray(mapData)) {
+          this.subscribeToArray();
+        } else {
+          this.subscribeToFunction();
+        }
 
-        for (let name of Object.keys(subscriptions)) {
+        this.setState({ subscribed: true });
+      }
+
+      subscribeToArray() {
+        this.subscriptions = mapData.reduce(
+          (acc, { query, name }) => {
+            acc.push(
+              query(this.context.horizon, this.props)
+              .watch()
+              .forEach(this.handleData.bind(this, name))
+            );
+
+            return acc;
+          },
+          []
+        );
+      }
+
+      subscribeToFunction() {
+        const subscribeTo = mapData(this.props);
+
+        for (let name of Object.keys(subscribeTo)) {
           let queryResult;
-          const { collection, query } = subscriptions[name];
+          const { collection, c, query } = subscribeTo[name];
 
-          const horizonCollection = this.context.horizon(collection);
+          const horizonCollection = this.context.horizon(collection || c);
 
           if (query && Object.keys(query).length) {
             queryResult = horizonCollection.findAll(query);
@@ -49,24 +92,32 @@ export default function subscribe(mapData) {
             queryResult = horizonCollection;
           }
 
-          queryResult
+          this.subscriptions.push(queryResult
             .watch()
-            .forEach(docs => {
-              this.setState({
-                data: {
-                  ...this.state.data,
-                  [collection]: docs
-                }
-              });
-            });
+            .forEach(this.handleData.bind(this, name))
+          );
         }
+      }
+
+      handleData = (name, docs) => {
+        this.setState({
+          data: {
+            ...this.state.data,
+            [name]: docs
+          }
+        });
+      };
+
+      componentWillUnmount() {
+        // make sure to dispose all subscriptions
+        this.subscriptions.forEach( s => s.dispose() );
       }
 
       render() {
         return createElement(TargetComponent, {
-            ...this.props,
-            ...this.state.data,
-            horizon: this.context.horizon
+          ...this.props,
+          ...this.state.data,
+          horizon: this.context.horizon
         });
       }
     }
