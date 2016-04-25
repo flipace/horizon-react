@@ -40,11 +40,15 @@ export default (horizonProps = false, ConnectedComponent) => class extends Compo
 
   onStatus = (status) => {
     try {
-      this.setState({
-        hzStatus: status,
-      });
+      // timeout is needed since the onConnected callback is not enough
+      // to determine ready state
+      setTimeout(() => {
+        this.setState({
+          hzStatus: status,
+        });
+      }, 250);
     } catch(e) {
-      console.error(e);
+      console.error("Error bubbled up to horizon-react", e);
     }
   };
 
