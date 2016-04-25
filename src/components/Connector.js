@@ -32,7 +32,7 @@ export default (horizonProps = false, ConnectedComponent) => class extends Compo
     // set up connection status callbacks
     this.horizon.onDisconnected(this.onStatus);
     this.horizon.onConnected(this.onStatus);
-    this.horizon.onReady(this.onStatus);
+    // this.horizon.onReady(this.onStatus);
     this.horizon.onSocketError(this.onStatus);
 
     this.horizon.connect();
@@ -51,7 +51,7 @@ export default (horizonProps = false, ConnectedComponent) => class extends Compo
   render() {
     // wait for https://github.com/rethinkdb/horizon/pull/286 to be merged
     // return this.state.hzStatus.type === Horizon.constants.connection.STATUS_READY.type
-    return this.state.hzStatus.type === 'ready'
+    return this.state.hzStatus.type === 'connected'
     ? this.renderConnected()
     : this.renderLoading();
   }
