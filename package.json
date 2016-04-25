@@ -1,6 +1,6 @@
 {
   "name": "horizon-react",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "React bindings for horizon",
   "main": "./lib/index.js",
   "scripts": {
@@ -40,6 +40,11 @@
     "babel-register": "^6.3.13",
     "cross-env": "^1.0.7",
     "es3ify": "^0.2.0",
+    "eslint": "^2.8.0",
+    "eslint-config-airbnb": "^8.0.0",
+    "eslint-plugin-import": "^1.5.0",
+    "eslint-plugin-jsx-a11y": "^1.0.2",
+    "eslint-plugin-react": "^5.0.1",
     "glob": "^6.0.4"
   },
   "dependencies": {

@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.1.1
+- rolled back 'ready' check until https://github.com/rethinkdb/horizon/pull/286 is merged
+- added .eslintrc and eslint-config-airbnb package
+
 ### v0.1.0
 - added horizon utils ```createDoc``` and ```deleteDoc```
 - using horizon constants which hopefully will be merged into master ([PR #286](https://github.com/rethinkdb/horizon/pull/286))

@@ -49,7 +49,9 @@ export default (horizonProps = false, ConnectedComponent) => class extends Compo
   };
 
   render() {
-    return this.state.hzStatus.type === Horizon.constants.connection.STATUS_READY.type
+    // wait for https://github.com/rethinkdb/horizon/pull/286 to be merged
+    // return this.state.hzStatus.type === Horizon.constants.connection.STATUS_READY.type
+    return this.state.hzStatus.type === 'ready'
     ? this.renderConnected()
     : this.renderLoading();
   }
