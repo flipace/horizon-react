@@ -1,5 +1,15 @@
 # Change Log
 
+### v0.1.2
+- allow passing objects with names as keys to subscribe:
+```JavaScript
+{
+  todos: {
+    query: (horizon, props) => horizon('todos').find({ ... }).limit(props.limit)
+  }
+}
+```
+
 ### v0.1.1
 - rolled back 'ready' check until https://github.com/rethinkdb/horizon/pull/286 is merged
 - added .eslintrc and eslint-config-airbnb package

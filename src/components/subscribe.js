@@ -1,5 +1,6 @@
 import { Component, PropTypes, createElement } from 'react';
 import hoistStatics from 'hoist-non-react-statics';
+import isPlainObject from 'is-plain-object';
 
 /**
  * Subscribes to data specified in mapData
@@ -33,12 +34,22 @@ export default function subscribe(mapData = () => ({})) {
             (acc, s) => { acc[s.name] = []; return acc; },
             {}
           );
+        } else if (isPlainObject(mapData)) {
+          return  this.getObjectWithArrays(
+            Object.keys(mapData)
+          );
         } else {
-          return Object.keys(mapData(props)).reduce( (acc, name) => {
-            acc[name] = [];
-            return acc;
-          }, {});
+          return this.getObjectWithArrays(
+            Object.keys(mapData(props))
+          );
         }
+      }
+
+      getObjectWithArrays(keys) {
+        return keys.reduce( (acc, name) => {
+          acc[name] = [];
+          return acc;
+        }, {});
       }
 
       componentDidMount() {
@@ -55,7 +66,9 @@ export default function subscribe(mapData = () => ({})) {
       subscribe() {
         if (Array.isArray(mapData)) {
           this.subscribeToArray();
-        } else {
+        } else if (isPlainObject(mapData)){
+          this.subscribeToObject();
+        } else {
           this.subscribeToFunction();
         }
 
@@ -75,6 +88,23 @@ export default function subscribe(mapData = () => ({})) {
           },
           []
         );
+      }
+
+      subscribeToObject() {
+        this.subscriptions = Object.keys(mapData).reduce(
+          (acc, name) => {
+            const query = mapData[name].query;
+
+            acc.push(
+              query(this.context.horizon, this.props)
+              .watch()
+              .forEach(this.handleData.bind(this, name))
+            );
+
+            return acc;
+          },
+          []
+        )
       }
 
       subscribeToFunction() {
