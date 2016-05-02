@@ -1,61 +1,82 @@
 import { Component, PropTypes, createElement } from 'react';
-import hoistStatics from 'hoist-non-react-statics';
+import {
+  IMapStateToProps,
+  IMapDispatchToProps,
+  IConnectOptions,
+  connect as ReactReduxConnect,
+} from 'react-redux';
 import isPlainObject from 'is-plain-object';
+
+const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
 
 /**
  * Subscribes to data specified in mapData
  */
-export default function subscribe(mapData = () => ({})) {
+export default function subscribe(opts = {}) {
+  let { mapDataToProps } = opts;
+
+  delete opts.mapDataToProps;
+
   return (TargetComponent) => {
     class DataSubscriber extends Component {
+      // make sure react prints parent component name on error/warnings
+      static displayName = `subscribe(DataSubscriber(${getDisplayName(TargetComponent)}))`;
+
       static contextTypes = {
-        horizon: PropTypes.func
+        horizon: PropTypes.func,
+        store: PropTypes.object
       };
 
-      constructor(props) {
-        super(props);
+      constructor(props, context) {
+        super(props, context);
 
-        // generate data object which will hold subscription documents
-        const data = this.getDataNames(props);
+        this.client = props.client || context.horizon;
+        this.store = props.store || context.store;
+        this.subscriptions = [];
+        this.data = {};
+        this.mutations = {};
 
         this.state = {
           subscribed: false,
           updates: 0,
-          data
+          data: this.getDataNames(props),
+          storeState: Object.assign({}, this.store.getState())
         };
+      }
 
-        // this will hold all active subscriptions
-        this.subscriptions = [];
+      componentDidMount() {
+        if (!this.state.subscribed && this.client) {
+          this.subscribe();
+        }
+      }
+
+      componentWillUnmount() {
+        // make sure to dispose all subscriptions
+        this.subscriptions.forEach( s => s.dispose ? s.dispose() : null );
       }
 
       getDataNames(props) {
-        if (Array.isArray(mapData)) {
-          return mapData.reduce(
+        if (Array.isArray(mapDataToProps)) {
+          return mapDataToProps.reduce(
             (acc, s) => { acc[s.name] = []; return acc; },
             {}
           );
-        } else if (isPlainObject(mapData)) {
+        } else if (isPlainObject(mapDataToProps)) {
           return  this.getObjectWithArrays(
-            Object.keys(mapData)
+            Object.keys(mapDataToProps)
           );
         } else {
           return this.getObjectWithArrays(
-            Object.keys(mapData(props))
+            Object.keys(mapDataToProps(props))
           );
         }
       }
 
       getObjectWithArrays(keys) {
         return keys.reduce( (acc, name) => {
-          acc[name] = [];
+          acc[name] = false;
           return acc;
         }, {});
-      }
-
-      componentDidMount() {
-        if (!this.state.subscribed && this.context.horizon) {
-          this.subscribe();
-        }
       }
 
       /**
@@ -64,9 +85,9 @@ export default function subscribe(mapData = () => ({})) {
        * time data changes.
        */
       subscribe() {
-        if (Array.isArray(mapData)) {
+        if (Array.isArray(mapDataToProps)) {
           this.subscribeToArray();
-        } else if (isPlainObject(mapData)){
+        } else if (isPlainObject(mapDataToProps)){
           this.subscribeToObject();
         } else {
           this.subscribeToFunction();
@@ -76,10 +97,10 @@ export default function subscribe(mapData = () => ({})) {
       }
 
       subscribeToArray() {
-        this.subscriptions = mapData.reduce(
+        this.subscriptions = mapDataToProps.reduce(
           (acc, { query, name }) => {
             acc.push(
-              query(this.context.horizon, this.props)
+              query(this.client, this.props)
               .watch()
               .forEach(this.handleData.bind(this, name))
             );
@@ -91,12 +112,12 @@ export default function subscribe(mapData = () => ({})) {
       }
 
       subscribeToObject() {
-        this.subscriptions = Object.keys(mapData).reduce(
+        this.subscriptions = Object.keys(mapDataToProps).reduce(
           (acc, name) => {
-            const query = mapData[name].query;
+            const query = mapDataToProps[name];
 
             acc.push(
-              query(this.context.horizon, this.props)
+              query(this.client, this.props)
               .watch()
               .forEach(this.handleData.bind(this, name))
             );
@@ -108,13 +129,13 @@ export default function subscribe(mapData = () => ({})) {
       }
 
       subscribeToFunction() {
-        const subscribeTo = mapData(this.props);
+        const subscribeTo = mapDataToProps(this.props);
 
         for (let name of Object.keys(subscribeTo)) {
           let queryResult;
           const { collection, c, query } = subscribeTo[name];
 
-          const horizonCollection = this.context.horizon(collection || c);
+          const horizonCollection = this.client(collection || c);
 
           if (query && Object.keys(query).length) {
             queryResult = horizonCollection.findAll(query);
@@ -138,20 +159,21 @@ export default function subscribe(mapData = () => ({})) {
         });
       };
 
-      componentWillUnmount() {
-        // make sure to dispose all subscriptions
-        this.subscriptions.forEach( s => s.dispose() );
-      }
-
       render() {
         return createElement(TargetComponent, {
           ...this.props,
           ...this.state.data,
-          horizon: this.context.horizon
+          horizon: this.client
         });
       }
     }
 
-    return hoistStatics(DataSubscriber, TargetComponent);
+    const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
+    return ReactReduxConnect(
+      mapStateToProps,
+      mapDispatchToProps,
+      mergeProps,
+      options
+    )(DataSubscriber);
   }
 }

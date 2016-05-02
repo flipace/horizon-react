@@ -1,4 +1,4 @@
-import { PropTypes, Component, createElement } from 'react';
+import { PropTypes, Component, createElement, Children } from 'react';
 import { render } from 'react-dom';
 import isPlainObject from 'is-plain-object';
 import Horizon from '@horizon/client';
@@ -7,27 +7,45 @@ import Horizon from '@horizon/client';
  * Initializes connection to Horizon server and passes
  * hzConnected prop to enhanced component.
  */
-export default (horizonProps = false, ConnectedComponent) => class extends Component {
+export default class extends Component {
+  static propTypes = {
+    store: PropTypes.shape({
+      subscribe: PropTypes.func.isRequired,
+      dispatch: PropTypes.func.isRequired,
+      getState: PropTypes.func.isRequired,
+    }),
+    horizonProps: PropTypes.object,
+    children: PropTypes.element.isRequired
+  };
+
+  static defaultProps = {
+    horizonProps: {}
+  };
+
   static childContextTypes = {
-    horizon: PropTypes.func
+    horizon: PropTypes.func,
+    store: PropTypes.object
   };
 
   getChildContext() {
-    return { horizon: this.horizon };
+    return {
+      horizon: this.horizon,
+      store: this.store
+    };
   }
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       hzStatus: false
     };
 
-    this.horizon = Horizon(
-      isPlainObject(horizonProps)
-      ? horizonProps
-      : {}
-    );
+    // the horizon connection
+    this.horizon = Horizon(props.horizonProps);
+
+    // the redux connection
+    this.store = props.store;
 
     // set up connection status callbacks
     this.horizon.onDisconnected(this.onStatus);
@@ -43,6 +61,7 @@ export default (horizonProps = false, ConnectedComponent) => class extends Compo
       // timeout is needed since the onConnected callback is not enough
       // to determine ready state
       setTimeout(() => {
+        console.log()
         this.setState({
           hzStatus: status,
         });
@@ -53,27 +72,18 @@ export default (horizonProps = false, ConnectedComponent) => class extends Compo
   };
 
   render() {
-    // wait for https://github.com/rethinkdb/horizon/pull/286 to be merged
-    // return this.state.hzStatus.type === Horizon.constants.connection.STATUS_READY.type
     return this.state.hzStatus.type === 'connected'
     ? this.renderConnected()
     : this.renderLoading();
   }
 
   renderConnected() {
-    const component = isPlainObject(horizonProps)
-    ? ConnectedComponent
-    : horizonProps;
-
-    return createElement(component, {
-      ...this.props,
-      horizon: this.horizon
-    });
+    return Children.only(this.props.children)
   }
 
   renderLoading() {
     return this.props.loadingComponent
     ? createElement(this.props.loadingComponent)
-    : null;
+    : createElement('span');
   }
 }
