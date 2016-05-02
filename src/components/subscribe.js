@@ -67,17 +67,17 @@ export default function subscribe(opts = {}) {
             {}
           );
         } else if (isPlainObject(mapDataToProps)) {
-          return  this.getObjectWithArrays(
+          return  this.getObjectWithDataKeys(
             Object.keys(mapDataToProps)
           );
         } else if (typeof mapDataToProps === 'function'){
-          return this.getObjectWithArrays(
+          return this.getObjectWithDataKeys(
             Object.keys(mapDataToProps(props))
           );
         }
       }
 
-      getObjectWithArrays(keys) {
+      getObjectWithDataKeys(keys) {
         return keys.reduce( (acc, name) => {
           acc[name] = false;
           return acc;
@@ -114,6 +114,14 @@ export default function subscribe(opts = {}) {
         this.setState({ subscribed: false });
       }
 
+      /**
+       * Query is written as an array.
+       *
+       * const mapDataToProps = [
+       *   { name: 'todos', query: hz => hz('todos').limit(5) },
+       *   { name: 'users', query: hz => hz('users').limit(5) }
+       * ];
+       */
       subscribeToArray() {
         mapDataToProps.forEach(
           ({ query, name }) => {
@@ -122,6 +130,16 @@ export default function subscribe(opts = {}) {
         );
       }
 
+      /**
+       * Query is written as an object.
+       *
+       * Example:
+       *
+       * const mapDataToProps = {
+       *   todos: hz => hz('todos').findAll(...),
+       *   users: (hz, props) => hz('users').limit(5)
+       * };
+       */
       subscribeToObject() {
         Object.keys(mapDataToProps).forEach(
           name => {
@@ -132,6 +150,21 @@ export default function subscribe(opts = {}) {
         )
       }
 
+      /**
+       * Query is written as a function which accepts "props".
+       * We execute the function to get back an object with
+       * collection and optional query key.
+       *
+       * Example:
+       *
+       * const mapDataToProps = (props) => ({
+       *   name: 'todos',
+       *   query: { name: props.name }
+       * });
+       *
+       * @param {String} collection is the name of the collection you want to access
+       * @param {Object|String} query is the query object which will be passed to "findAll"
+       */
       subscribeToFunction() {
         const subscribeTo = mapDataToProps(this.props);
 
@@ -151,6 +184,12 @@ export default function subscribe(opts = {}) {
         }
       }
 
+      /**
+       * Builds the query and sets up the callback when data
+       * changes come in.
+       * If the query is the same as the old one, we keep the old one
+       * and ignore the new one.
+       */
       handleQuery(query, name) {
         if (this.subscriptions[name]) {
           const prevQuery = this.subscriptions[name].query;
@@ -168,6 +207,16 @@ export default function subscribe(opts = {}) {
         };
       }
 
+      /**
+       * When new data comes in, we update the state of this component,
+       * this will cause a rerender of it's child component with the new
+       * data in props.
+       *
+       * @TODO this is probably the place where the data should be propagated
+       * to the redux store. If other components subscribe with the same query,
+       * they should find that there's already a query listening and just grab the
+       * according data from the app state instead of setting up a separate listener.
+       */
       handleData = (name, docs) => {
         this.setState({
           data: {
@@ -186,6 +235,10 @@ export default function subscribe(opts = {}) {
       }
     }
 
+    /**
+     * Pass options to redux "connect" so there's no need to use
+     * two wrappers in application code.
+     */
     const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
     return ReactReduxConnect(
       mapStateToProps,

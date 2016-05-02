@@ -15,6 +15,7 @@ export default class extends Component {
       getState: PropTypes.func.isRequired,
     }),
     horizonProps: PropTypes.object,
+    horizon: PropTypes.func,
     children: PropTypes.element.isRequired
   };
 
@@ -37,21 +38,29 @@ export default class extends Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = {
-      hzStatus: false
-    };
+    const initialState = {};
 
     // the horizon connection
-    this.horizon = Horizon(props.horizonProps);
+    this.horizon = props.horizon
+    ? props.horizon
+    : Horizon(props.horizonProps);
 
     // the redux connection
     this.store = props.store;
+
+    initialState.hzStatus = props.horizon
+    ? props.horizon.status().getValue()
+    : false;
+
+    this.state = initialState;
 
     // set up connection status callbacks
     this.horizon.onDisconnected(this.onStatus);
     this.horizon.onConnected(this.onStatus);
     // this.horizon.onReady(this.onStatus);
     this.horizon.onSocketError(this.onStatus);
+
+    if (props.horizon) return;
 
     this.horizon.connect();
   }
