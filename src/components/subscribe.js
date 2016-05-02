@@ -1,3 +1,4 @@
+import isEqual from 'lodash.isequal';
 import { Component, PropTypes, createElement } from 'react';
 import {
   IMapStateToProps,
@@ -32,7 +33,7 @@ export default function subscribe(opts = {}) {
 
         this.client = props.client || context.horizon;
         this.store = props.store || context.store;
-        this.subscriptions = [];
+        this.subscriptions = {};
         this.data = {};
         this.mutations = {};
 
@@ -44,15 +45,19 @@ export default function subscribe(opts = {}) {
         };
       }
 
-      componentDidMount() {
-        if (!this.state.subscribed && this.client) {
-          this.subscribe();
+      componentWillMount() {
+        this.subscribe(this.props);
+      }
+
+      componentWillReceiveProps(nextProps) {
+        if (!isEqual(nextProps, this.props)) {
+          this.subscribe(nextProps);
         }
       }
 
       componentWillUnmount() {
         // make sure to dispose all subscriptions
-        this.subscriptions.forEach( s => s.dispose ? s.dispose() : null );
+        this.unsubscribe();
       }
 
       getDataNames(props) {
@@ -65,7 +70,7 @@ export default function subscribe(opts = {}) {
           return  this.getObjectWithArrays(
             Object.keys(mapDataToProps)
           );
-        } else {
+        } else if (typeof mapDataToProps === 'function'){
           return this.getObjectWithArrays(
             Object.keys(mapDataToProps(props))
           );
@@ -84,47 +89,46 @@ export default function subscribe(opts = {}) {
        * the subscriptions which should fire setState() every
        * time data changes.
        */
-      subscribe() {
+      subscribe(props) {
         if (Array.isArray(mapDataToProps)) {
           this.subscribeToArray();
         } else if (isPlainObject(mapDataToProps)){
           this.subscribeToObject();
-        } else {
+        } else if (typeof mapDataToProps === 'function'){
           this.subscribeToFunction();
         }
 
         this.setState({ subscribed: true });
       }
 
-      subscribeToArray() {
-        this.subscriptions = mapDataToProps.reduce(
-          (acc, { query, name }) => {
-            acc.push(
-              query(this.client, this.props)
-              .watch()
-              .forEach(this.handleData.bind(this, name))
-            );
+      /**
+       * Unsubscribe from all subscriptions.
+       */
+      unsubscribe() {
+        Object.keys(this.subscriptions).forEach( k =>
+          this.subscriptions[k].dispose
+          ? this.subscriptions[k].dispose()
+          : null
+        );
 
-            return acc;
-          },
-          []
+        this.setState({ subscribed: false });
+      }
+
+      subscribeToArray() {
+        mapDataToProps.forEach(
+          ({ query, name }) => {
+            this.handleQuery(query(this.client, this.props), name);
+          }
         );
       }
 
       subscribeToObject() {
-        this.subscriptions = Object.keys(mapDataToProps).reduce(
-          (acc, name) => {
+        Object.keys(mapDataToProps).forEach(
+          name => {
             const query = mapDataToProps[name];
 
-            acc.push(
-              query(this.client, this.props)
-              .watch()
-              .forEach(this.handleData.bind(this, name))
-            );
-
-            return acc;
-          },
-          []
+            this.handleQuery(query(this.client, this.props), name);
+          }
         )
       }
 
@@ -143,11 +147,25 @@ export default function subscribe(opts = {}) {
             queryResult = horizonCollection;
           }
 
-          this.subscriptions.push(queryResult
-            .watch()
-            .forEach(this.handleData.bind(this, name))
-          );
+          this.handleQuery(queryResult, name);
         }
+      }
+
+      handleQuery(query, name) {
+        if (this.subscriptions[name]) {
+          const prevQuery = this.subscriptions[name].query;
+
+          // if the new query is the same as the previous one,
+          // we keep the previous one
+          if (isEqual(prevQuery, query._query)) return;
+        }
+
+        this.subscriptions[name] = {
+          subscription: query
+            .watch()
+            .forEach(this.handleData.bind(this, name)),
+          query: query._query
+        };
       }
 
       handleData = (name, docs) => {
