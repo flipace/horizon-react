@@ -62,7 +62,7 @@ export default class extends Component {
 
     if (props.horizon) return;
 
-    this.horizon.connect();
+    this.horizon.connect(this.onStatus);
   }
 
   onStatus = (status) => {
@@ -70,9 +70,8 @@ export default class extends Component {
       // timeout is needed since the onConnected callback is not enough
       // to determine ready state
       setTimeout(() => {
-        console.log()
         this.setState({
-          hzStatus: status,
+          hzStatus: status
         });
       }, 250);
     } catch(e) {

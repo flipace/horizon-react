@@ -1,4 +1,5 @@
 import isEqual from 'lodash.isequal';
+import isPlainObject from 'is-plain-object';
 import { Component, PropTypes, createElement } from 'react';
 import {
   IMapStateToProps,
@@ -6,8 +7,8 @@ import {
   IConnectOptions,
   connect as ReactReduxConnect,
 } from 'react-redux';
-import isPlainObject from 'is-plain-object';
 
+const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
 
 /**
@@ -79,7 +80,7 @@ export default function subscribe(opts = {}) {
 
       getObjectWithDataKeys(keys) {
         return keys.reduce( (acc, name) => {
-          acc[name] = false;
+          acc[name] = [];
           return acc;
         }, {});
       }
@@ -218,10 +219,17 @@ export default function subscribe(opts = {}) {
        * according data from the app state instead of setting up a separate listener.
        */
       handleData = (name, docs) => {
+        let data = docs || emptyArray;
+
+        // always return an array, even if there's just one document
+        if (isPlainObject(docs)) {
+          data = [docs]
+        }
+
         this.setState({
           data: {
             ...this.state.data,
-            [name]: docs
+            [name]: data
           }
         });
       };
