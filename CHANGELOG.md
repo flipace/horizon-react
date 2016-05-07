@@ -1,5 +1,13 @@
 # Change Log
 
+### v0.2.0
+- added redux to ```subscribe``` with one function to state and data, connector is now a HOC instead of a wrapper function
+- re-use existing queries if query didn't Change
+- improved subscription query building
+- ```horizon``` client can now be passed as ```horizon``` prop to ```Connector``` in order to define the client outside.
+- always return an array - even if there's just one document
+- fixes issue with old props being used in subscriptions on update
+
 ### v0.1.2
 - allow passing objects with names as keys to subscribe:
 ```JavaScript
