@@ -60,7 +60,7 @@ import Todo from './Todo';
 
 // simple subscription to the collection "todos"
 const mapDataToProps = {
-  todos(hz, props) => hz('todos').limit(props.limit)
+  todos: (hz, props) => hz('todos').limit(props.limit)
 };
 
 // you can connect to redux state too
