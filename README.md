@@ -37,9 +37,9 @@ import { subscribe } from 'horizon-react';
 import Todo from './Todo';
 
 // simple subscription to the collection "todos"
-const mapDataToProps = (props) => ({
-  todos: { collection: 'todos', query: {} }
-});
+const mapDataToProps = {
+  todos(hz) => hz('todos')
+};
 
 const TodoList = (props) => (
   <ul>
@@ -59,15 +59,9 @@ import { subscribe } from 'horizon-react';
 import Todo from './Todo';
 
 // simple subscription to the collection "todos"
-const mapData = [
-  {
-    name: 'limitedTodos',
-    query: (hz, props) => {
-      // build your horizon query here!
-      return hz('todos').limit(props.limit);
-    }
-  }
-];
+const mapDataToProps = {
+  todos(hz, props) => hz('todos').limit(props.limit)
+};
 
 // you can connect to redux state too
 const mapStateToProps = (state, props) => ({
@@ -76,7 +70,7 @@ const mapStateToProps = (state, props) => ({
 
 const TodoList = (props) => (
   <ul>
-    {props.limitedTodos.map( todo => <Todo {...todo} /> )}
+    {props.todos.map( todo => <Todo {...todo} /> )}
   </ul>
 );
 
