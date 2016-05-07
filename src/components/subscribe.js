@@ -92,11 +92,11 @@ export default function subscribe(opts = {}) {
        */
       subscribe(props) {
         if (Array.isArray(mapDataToProps)) {
-          this.subscribeToArray();
+          this.subscribeToArray(props);
         } else if (isPlainObject(mapDataToProps)){
-          this.subscribeToObject();
+          this.subscribeToObject(props);
         } else if (typeof mapDataToProps === 'function'){
-          this.subscribeToFunction();
+          this.subscribeToFunction(props);
         }
 
         this.setState({ subscribed: true });
@@ -123,10 +123,10 @@ export default function subscribe(opts = {}) {
        *   { name: 'users', query: hz => hz('users').limit(5) }
        * ];
        */
-      subscribeToArray() {
+      subscribeToArray(props) {
         mapDataToProps.forEach(
           ({ query, name }) => {
-            this.handleQuery(query(this.client, this.props), name);
+            this.handleQuery(query(this.client, props), name);
           }
         );
       }
@@ -141,12 +141,12 @@ export default function subscribe(opts = {}) {
        *   users: (hz, props) => hz('users').limit(5)
        * };
        */
-      subscribeToObject() {
+      subscribeToObject(props) {
         Object.keys(mapDataToProps).forEach(
           name => {
             const query = mapDataToProps[name];
 
-            this.handleQuery(query(this.client, this.props), name);
+            this.handleQuery(query(this.client, props), name);
           }
         )
       }
@@ -166,8 +166,8 @@ export default function subscribe(opts = {}) {
        * @param {String} collection is the name of the collection you want to access
        * @param {Object|String} query is the query object which will be passed to "findAll"
        */
-      subscribeToFunction() {
-        const subscribeTo = mapDataToProps(this.props);
+      subscribeToFunction(props) {
+        const subscribeTo = mapDataToProps(props);
 
         for (let name of Object.keys(subscribeTo)) {
           let queryResult;
