@@ -21,17 +21,14 @@ data by using ```subscribe```.
 **Example Root component:**
 ```JavaScript
 import { Connector } from 'horizon-react';
+import store from './store';
 import TodoList from './components/TodoList';
 
-const App = () => (
-  <TodoList />
+export default () => (
+  <Connector store={store}>
+    <TodoList />
+  </Connector>
 );
-
-// you can either use the default options and just pass a component:
-export Connector(App);
-
-// or you can pass an options object which will be passed directly to the Horizon client
-export Connector({ secure: true }, App);
 ```
 
 **Example Subscribed component:**
@@ -40,9 +37,9 @@ import { subscribe } from 'horizon-react';
 import Todo from './Todo';
 
 // simple subscription to the collection "todos"
-const mapData = (props) => ({
-  todos: { collection: 'todos', query: {} }
-});
+const mapDataToProps = {
+  todos(hz) => hz('todos')
+};
 
 const TodoList = (props) => (
   <ul>
@@ -50,7 +47,9 @@ const TodoList = (props) => (
   </ul>
 );
 
-export default subscribe(mapData)(TodoList)
+export default subscribe({
+  mapDataToProps
+})(TodoList)
 ```
 
 
@@ -60,23 +59,25 @@ import { subscribe } from 'horizon-react';
 import Todo from './Todo';
 
 // simple subscription to the collection "todos"
-const mapData = [
-  {
-    name: 'limitedTodos',
-    query: (hz, props) => {
-      // build your horizon query here!
-      return hz('todos').limit(props.limit);
-    }
-  }
-];
+const mapDataToProps = {
+  todos(hz, props) => hz('todos').limit(props.limit)
+};
+
+// you can connect to redux state too
+const mapStateToProps = (state, props) => ({
+  ui: state.checkedTodos
+});
 
 const TodoList = (props) => (
   <ul>
-    {props.limitedTodos.map( todo => <Todo {...todo} /> )}
+    {props.todos.map( todo => <Todo {...todo} /> )}
   </ul>
 );
 
-export default subscribe(mapData)(TodoList)
+export default subscribe({
+  mapDataToProps,
+  mapStateToProps
+})(TodoList)
 ```
 
 ### FAQ
