@@ -38,7 +38,7 @@ import Todo from './Todo';
 
 // simple subscription to the collection "todos"
 const mapDataToProps = {
-  todos(hz) => hz('todos')
+  todos: (hz) => hz('todos')
 };
 
 const TodoList = (props) => (
