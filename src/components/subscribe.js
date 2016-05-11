@@ -291,16 +291,18 @@ export default function subscribe(opts = {}) {
 
     const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
 
-    const mapHorizonStateToProps = (store) =>({
-      __hz_data: store.horizon.get('data'),
-      __hz_subscriptions: store.horizon.get('subscriptions')
-    });
-    const ConnectedDataSubscriber = ReactReduxConnect(
-      mapHorizonStateToProps,
-      mapDispatchToProps,
-      mergeProps,
-      options
-    )(DataSubscriber);
+    const mapHorizonStateToProps = (store, props) => {
+      const horizonProps = {
+        __hz_data: store.horizon.get('data'),
+        __hz_subscriptions: store.horizon.get('subscriptions')
+      };
+
+      if (mapStateToProps && typeof mapStateToProps === 'function') {
+        return { ...mapStateToProps(store, props), ...horizonProps };
+      }
+
+      return horizonProps;
+    };
 
     /**
      * Pass options to redux "connect" so there's no need to use
@@ -308,10 +310,10 @@ export default function subscribe(opts = {}) {
      */
 
     return ReactReduxConnect(
-      mapStateToProps,
+      mapHorizonStateToProps,
       mapDispatchToProps,
       mergeProps,
       options
-    )(ConnectedDataSubscriber);
+    )(DataSubscriber);
   }
 }
