@@ -13,6 +13,7 @@ import { addData, changeData, removeData, addSubscription } from '../actionCreat
 const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
 const emptyList = Immutable.List();
+const blacklist = ['__hz_data', '__hz_subscriptions'];
 
 /**
  * Subscribes to data specified in mapData
@@ -54,9 +55,38 @@ export default function subscribe(opts = {}) {
       }
 
       componentWillReceiveProps(nextProps) {
-        if (!isEqual(nextProps, this.props)) {
-          //this.subscribe(nextProps);
+        if (!isEqual(mapDataToProps, mapDataToProps)) {
+          this.subscribe(nextProps);
         }
+      }
+
+      shouldComponentUpdate(nextProps) {
+        const nextKeys = Object.keys(nextProps);
+        const thisKeys = Object.keys(this.props);
+
+        if (thisKeys.length !== nextKeys.length) return true;
+
+        for (let i = 0; i < nextKeys.length; i++) {
+          const key = nextKeys[i];
+
+          if (blacklist.indexOf(key) <= -1) {
+            if (!isEqual(nextProps[key], this.props[key])) {
+              return true;
+            }
+          }
+        }
+
+        const subscriptionKeys = Object.keys(this.subscriptions);
+
+        for (let i = 0; i < subscriptionKeys.length; i++) {
+          const key = subscriptionKeys[i];
+
+          if (nextProps.__hz_data.get(key) !== this.props.__hz_data.get(key)) {
+            return true;
+          }
+        }
+
+        return false;
       }
 
       componentWillUnmount() {
@@ -227,7 +257,6 @@ export default function subscribe(opts = {}) {
        * according data from the app state instead of setting up a separate listener.
        */
       handleData = (name, change) => {
-        console.log("CHANGE", change);
         switch (change.type) {
           case 'add':
           case 'initial':
