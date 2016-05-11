@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 import isEqual from 'lodash.isequal';
 import isPlainObject from 'is-plain-object';
 import { Component, PropTypes, createElement } from 'react';
@@ -7,9 +8,11 @@ import {
   IConnectOptions,
   connect as ReactReduxConnect,
 } from 'react-redux';
+import { addData, changeData, removeData, addSubscription } from '../actionCreators';
 
 const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
+const emptyList = Immutable.List();
 
 /**
  * Subscribes to data specified in mapData
@@ -46,13 +49,13 @@ export default function subscribe(opts = {}) {
         };
       }
 
-      componentWillMount() {
+      componentDidMount() {
         this.subscribe(this.props);
       }
 
       componentWillReceiveProps(nextProps) {
         if (!isEqual(nextProps, this.props)) {
-          this.subscribe(nextProps);
+          //this.subscribe(nextProps);
         }
       }
 
@@ -106,12 +109,13 @@ export default function subscribe(opts = {}) {
        * Unsubscribe from all subscriptions.
        */
       unsubscribe() {
-        Object.keys(this.subscriptions).forEach( k =>
-          this.subscriptions[k].dispose
-          ? this.subscriptions[k].dispose()
-          : null
-        );
+        Object.keys(this.subscriptions).forEach( k => {
+          const sub = this.subscriptions[k];
 
+          sub.dispose
+          ? sub.dispose()
+          : null
+        });
         this.setState({ subscribed: false });
       }
 
@@ -145,7 +149,6 @@ export default function subscribe(opts = {}) {
         Object.keys(mapDataToProps).forEach(
           name => {
             const query = mapDataToProps[name];
-
             this.handleQuery(query(this.client, props), name);
           }
         )
@@ -192,20 +195,25 @@ export default function subscribe(opts = {}) {
        * and ignore the new one.
        */
       handleQuery(query, name) {
-        if (this.subscriptions[name]) {
-          const prevQuery = this.subscriptions[name].query;
+        const sub = Immutable.fromJS({
+          ...query._query
+        });
 
-          // if the new query is the same as the previous one,
-          // we keep the previous one
-          if (isEqual(prevQuery, query._query)) return;
-        }
+        const hash = 'd-' + sub.hashCode();
 
-        this.subscriptions[name] = {
-          subscription: query
-            .watch()
-            .forEach(this.handleData.bind(this, name)),
-          query: query._query
-        };
+        this.subscriptions[hash] = name;
+
+        // early exit in case a subscription like this already
+        // exists
+        if (
+          this.props.__hz_subscriptions.has(hash)
+        ) return;
+
+        const fetch = query
+          .watch({ rawChanges: true })
+          .forEach(this.handleData.bind(this, hash));
+
+        this.props.dispatch(addSubscription(sub, hash));
       }
 
       /**
@@ -218,41 +226,63 @@ export default function subscribe(opts = {}) {
        * they should find that there's already a query listening and just grab the
        * according data from the app state instead of setting up a separate listener.
        */
-      handleData = (name, docs) => {
-        let data = docs || emptyArray;
-
-        // always return an array, even if there's just one document
-        if (isPlainObject(docs)) {
-          data = [docs]
+      handleData = (name, change) => {
+        console.log("CHANGE", change);
+        switch (change.type) {
+          case 'add':
+          case 'initial':
+            this.props.dispatch(addData(change.new_val, name));
+            break;
+          case 'change':
+            this.props.dispatch(changeData(change.new_val, name));
+            break;
+          case 'remove':
+            this.props.dispatch(removeData(change.old_val.id, name));
+            break;
         }
-
-        this.setState({
-          data: {
-            ...this.state.data,
-            [name]: data
-          }
-        });
       };
 
       render() {
+        const subscriptionKeys = Object.keys(this.subscriptions);
+        const data = this.props.__hz_data;
+        const queryData = {};
+
+        subscriptionKeys.forEach(key => {
+          queryData[this.subscriptions[key]] = data.get(key, emptyList);
+        });
+
         return createElement(TargetComponent, {
           ...this.props,
           ...this.state.data,
+          ...queryData,
           horizon: this.client
         });
       }
     }
 
+    const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
+
+    const mapHorizonStateToProps = (store) =>({
+      __hz_data: store.horizon.get('data'),
+      __hz_subscriptions: store.horizon.get('subscriptions')
+    });
+    const ConnectedDataSubscriber = ReactReduxConnect(
+      mapHorizonStateToProps,
+      mapDispatchToProps,
+      mergeProps,
+      options
+    )(DataSubscriber);
+
     /**
      * Pass options to redux "connect" so there's no need to use
      * two wrappers in application code.
      */
-    const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
+
     return ReactReduxConnect(
       mapStateToProps,
       mapDispatchToProps,
       mergeProps,
       options
-    )(DataSubscriber);
+    )(ConnectedDataSubscriber);
   }
 }

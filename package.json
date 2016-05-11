@@ -29,7 +29,7 @@
     "babel-cli": "6.7.5",
     "babel-core": "6.7.5",
     "babel-eslint": "6.0.0",
-    "babel-loader": "6.2.4",
+    "babel-loader": "^6.2.4",
     "babel-plugin-react-transform": "2.0.2",
     "babel-plugin-syntax-jsx": "6.3.13",
     "babel-plugin-transform-class-properties": "6.4.0",
@@ -50,6 +50,7 @@
   "dependencies": {
     "@horizon/client": "^0.1.0",
     "hoist-non-react-statics": "^1.0.3",
+    "immutable": "^3.8.1",
     "is-plain-object": "^2.0.1",
     "lodash.isequal": "^4.1.4",
     "react-dom": "^15.0.1",
