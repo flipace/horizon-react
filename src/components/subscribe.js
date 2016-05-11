@@ -50,7 +50,7 @@ export default function subscribe(opts = {}) {
         };
       }
 
-      componentDidMount() {
+      componentWillMount() {
         this.subscribe(this.props);
       }
 
