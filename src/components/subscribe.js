@@ -54,7 +54,7 @@ export default function subscribe(opts = {}) {
         this.subscribe(this.props);
       }
 
-      componentWillReceiveProps(nextProps) {
+      componentWillUpdate(nextProps) {
         if (!isEqual(mapDataToProps, mapDataToProps)) {
           this.subscribe(nextProps);
         }
@@ -229,17 +229,17 @@ export default function subscribe(opts = {}) {
           ...query._query
         });
 
-        const hash = 'd-' + sub.hashCode();
+        const hash = `sid_${sub.hashCode()}`;
 
         this.subscriptions[hash] = name;
 
         // early exit in case a subscription like this already
         // exists
-        if (
-          this.props.__hz_subscriptions.has(hash)
-        ) return;
+        if (this.props.__hz_subscriptions.has(hash)) {
+          return true;
+        }
 
-        const fetch = query
+        query
           .watch({ rawChanges: true })
           .forEach(this.handleData.bind(this, hash));
 

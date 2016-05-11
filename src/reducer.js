@@ -40,16 +40,17 @@ const reducerMap = {
     );
   },
   [types.HZ_ADD_SUBSCRIPTION] : (state, { payload: { key, sub } }) => {
-    console.log("add sub", key, sub);
+    if (state.getIn(['subscriptions', key]) !== sub) {
+      return state.setIn(['subscriptions', key], Immutable.fromJS(sub));
+    }
 
-    return state.setIn(['subscriptions', key], sub);
+    return state;
   }
 }
 
 function createReducer (initialState, reducerMap) {
   return (state = initialState, action) => {
     const reducer = reducerMap[action.type];
-
     return reducer ? reducer(state, { type: action.type, payload: _.omit(action, 'type') }) : state;
   };
 }
