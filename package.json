@@ -49,11 +49,9 @@
   },
   "dependencies": {
     "@horizon/client": "^0.1.1-0",
-    "hoist-non-react-statics": "^1.0.3",
     "immutable": "^3.8.1",
     "is-plain-object": "^2.0.1",
     "lodash.isequal": "^4.1.4",
-    "react-dom": "^15.0.2",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2"
   },

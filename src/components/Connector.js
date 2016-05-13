@@ -20,7 +20,8 @@ export default class extends Component {
   };
 
   static defaultProps = {
-    horizonProps: {}
+    horizonProps: {},
+    loadingComponent: false
   };
 
   static childContextTypes = {
@@ -56,8 +57,7 @@ export default class extends Component {
 
     // set up connection status callbacks
     this.horizon.onDisconnected(this.onStatus);
-    this.horizon.onConnected(this.onStatus);
-    // this.horizon.onReady(this.onStatus);
+    this.horizon.onReady(this.onStatus);
     this.horizon.onSocketError(this.onStatus);
 
     if (props.horizon) return;
@@ -80,9 +80,9 @@ export default class extends Component {
   };
 
   render() {
-    return this.state.hzStatus.type === 'connected'
+    return this.state.hzStatus.type !== 'ready' && this.props.loadingComponent
     ? this.renderConnected()
-    : this.renderLoading();
+    : this.renderConnected();
   }
 
   renderConnected() {
