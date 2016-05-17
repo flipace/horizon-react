@@ -56,8 +56,7 @@ export default class extends Component {
 
     // set up connection status callbacks
     this.horizon.onDisconnected(this.onStatus);
-    this.horizon.onConnected(this.onStatus);
-    // this.horizon.onReady(this.onStatus);
+    this.horizon.onReady(this.onStatus);
     this.horizon.onSocketError(this.onStatus);
 
     if (props.horizon) return;
@@ -66,21 +65,13 @@ export default class extends Component {
   }
 
   onStatus = (status) => {
-    try {
-      // timeout is needed since the onConnected callback is not enough
-      // to determine ready state
-      setTimeout(() => {
-        this.setState({
-          hzStatus: status
-        });
-      }, 250);
-    } catch(e) {
-      console.error("Error bubbled up to horizon-react", e);
-    }
+    this.setState({
+      hzStatus: status
+    });
   };
 
   render() {
-    return this.state.hzStatus.type === 'connected'
+    return this.state.hzStatus.type === 'ready'
     ? this.renderConnected()
     : this.renderLoading();
   }
@@ -92,6 +83,6 @@ export default class extends Component {
   renderLoading() {
     return this.props.loadingComponent
     ? createElement(this.props.loadingComponent)
-    : createElement('span');
+    : null;
   }
 }

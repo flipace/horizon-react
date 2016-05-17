@@ -1,5 +1,11 @@
 # Change Log
 
+### v0.3.0
+- updated to *horizon/client@1.0.1* #celebrate! https://horizon.io
+- updated ready status indicator code and removed timeout
+- added imports- and exports-loader until pr is merged
+- fixes an issue which prevented <Connector /> from working in React Native (due to span element)
+
 ### v0.2.0
 - added redux to ```subscribe``` with one function to state and data, connector is now a HOC instead of a wrapper function
 - re-use existing queries if query didn't Change
