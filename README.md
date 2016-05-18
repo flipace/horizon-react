@@ -92,7 +92,7 @@ export default subscribe({
 
 ### FAQ
 #### Does this work with React Native?
-It should! If not, please create a new [issue]((https://github.com/flipace/horizon-react/issues))!
+It should! If not, please create a new [issue](https://github.com/flipace/horizon-react/issues)!
 
 #### Can I access the Horizon instance in the child components?
 Yes, you can either directly use ```context``` to access .horizon or just use ```subscribe()(MyComponent)```. ```subscribe``` will pass the Horizon instance from the context down to your component as a prop ```horizon```.
