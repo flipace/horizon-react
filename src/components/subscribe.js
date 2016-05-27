@@ -119,7 +119,7 @@ export default function subscribe(opts = {}) {
         Object.keys(this.subscriptions).forEach( k => {
           const sub = this.subscriptions[k];
 
-          sub.query.unsubscribe
+          sub.query && sub.query.unsubscribe
           ? sub.query.unsubscribe()
           : null;
         });
