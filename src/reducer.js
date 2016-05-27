@@ -24,7 +24,7 @@ const reducerMap = {
   [types.HZ_CHANGE_DATA] : (state, { payload: { key, data } }) => {
     const path = ['data', key];
     const index = state.getIn(['data', key])
-      .findIndex( d => d.get('id') === data.id );
+      .findIndex(d => d.get('id') === data.id);
 
     return state.setIn(
       path,
@@ -45,8 +45,15 @@ const reducerMap = {
     }
 
     return state;
+  },
+  [types.HZ_REMOVE_SUBSCRIPTION] : (state, { payload: { hash } }) => {
+    if (state.hasIn(['subscriptions', hash])) {
+      return state.deleteIn(['subscriptions', hash]);
+    }
+
+    return state;
   }
-}
+};
 
 function createReducer (initialState, reducerMap) {
   return (state = initialState, action) => {

@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.2.2
+- fixed issue when changing props of a subscription
+- optimized caching
+
 ### v0.2.0
 - added redux to ```subscribe``` with one function to state and data, connector is now a HOC instead of a wrapper function
 - re-use existing queries if query didn't Change

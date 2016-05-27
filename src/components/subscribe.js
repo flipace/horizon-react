@@ -8,7 +8,7 @@ import {
   IConnectOptions,
   connect as ReactReduxConnect,
 } from 'react-redux';
-import { addData, changeData, removeData, addSubscription } from '../actionCreators';
+import { addData, changeData, removeData, addSubscription, removeSubscription } from '../actionCreators';
 
 const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -39,13 +39,12 @@ export default function subscribe(opts = {}) {
         this.client = props.client || context.horizon;
         this.store = props.store || context.store;
         this.subscriptions = {};
-        this.data = {};
+        this.currentLifeCycleSubscriptions = [];
         this.mutations = {};
 
         this.state = {
           subscribed: false,
           updates: 0,
-          data: this.getDataNames(props),
           storeState: Object.assign({}, this.store.getState())
         };
       }
@@ -55,8 +54,12 @@ export default function subscribe(opts = {}) {
       }
 
       componentWillUpdate(nextProps) {
-        if (!isEqual(mapDataToProps, mapDataToProps)) {
+        if (!isEqual(nextProps, this.props)) {
+          this.currentLifeCycleSubscriptions.length = 0;
+
           this.subscribe(nextProps);
+
+          this.clearSubscriptions();
         }
       }
 
@@ -94,30 +97,6 @@ export default function subscribe(opts = {}) {
         this.unsubscribe();
       }
 
-      getDataNames(props) {
-        if (Array.isArray(mapDataToProps)) {
-          return mapDataToProps.reduce(
-            (acc, s) => { acc[s.name] = []; return acc; },
-            {}
-          );
-        } else if (isPlainObject(mapDataToProps)) {
-          return  this.getObjectWithDataKeys(
-            Object.keys(mapDataToProps)
-          );
-        } else if (typeof mapDataToProps === 'function'){
-          return this.getObjectWithDataKeys(
-            Object.keys(mapDataToProps(props))
-          );
-        }
-      }
-
-      getObjectWithDataKeys(keys) {
-        return keys.reduce( (acc, name) => {
-          acc[name] = [];
-          return acc;
-        }, {});
-      }
-
       /**
        * Walk through all elements in mapData and set up
        * the subscriptions which should fire setState() every
@@ -131,8 +110,6 @@ export default function subscribe(opts = {}) {
         } else if (typeof mapDataToProps === 'function'){
           this.subscribeToFunction(props);
         }
-
-        this.setState({ subscribed: true });
       }
 
       /**
@@ -142,11 +119,27 @@ export default function subscribe(opts = {}) {
         Object.keys(this.subscriptions).forEach( k => {
           const sub = this.subscriptions[k];
 
-          sub.dispose
-          ? sub.dispose()
-          : null
+          sub.query.unsubscribe
+          ? sub.query.unsubscribe()
+          : null;
         });
-        this.setState({ subscribed: false });
+      }
+
+      clearSubscriptions() {
+        Object.keys(this.subscriptions).forEach(key => {
+          const sub = this.subscriptions[key];
+
+          if (this.currentLifeCycleSubscriptions.indexOf(sub.hash) <= -1) {
+            if (sub.query)
+              sub.query.unsubscribe();
+
+            this.props.dispatch(removeSubscription(
+              sub.hash
+            ));
+
+            delete this.subscriptions[key];
+          }
+        });
       }
 
       /**
@@ -225,25 +218,43 @@ export default function subscribe(opts = {}) {
        * and ignore the new one.
        */
       handleQuery(query, name) {
-        const sub = Immutable.fromJS({
-          ...query._query
-        });
+        // if the passed query is false, don't handle it
+        if (query) {
+          const sub = Immutable.fromJS({
+            ...query._query
+          });
 
-        const hash = `sid_${sub.hashCode()}`;
+          const hash = `sid_${sub.hashCode()}`;
+          this.currentLifeCycleSubscriptions.push(hash);
 
-        this.subscriptions[hash] = name;
+          // early exit in case a subscription like this already
+          // exists
+          if (this.props.__hz_subscriptions.has(hash)) {
+            this.subscriptions[hash] = { name, hash };
+            return true;
+          }
 
-        // early exit in case a subscription like this already
-        // exists
-        if (this.props.__hz_subscriptions.has(hash)) {
-          return true;
+          Object.keys(this.subscriptions).forEach(key => {
+            const sub = this.subscriptions[key];
+
+            if (sub.query && sub.name === name) {
+              sub.query.unsubscribe();
+              this.props.dispatch(removeSubscription(
+                sub.hash
+              ));
+            }
+          });
+
+          this.subscriptions[hash] = {
+            name,
+            hash,
+            query: query
+              .watch({ rawChanges: true })
+              .subscribe(this.handleData.bind(this, hash))
+          };
+
+          this.props.dispatch(addSubscription(sub, hash));
         }
-
-        query
-          .watch({ rawChanges: true })
-          .forEach(this.handleData.bind(this, hash));
-
-        this.props.dispatch(addSubscription(sub, hash));
       }
 
       /**
@@ -275,14 +286,12 @@ export default function subscribe(opts = {}) {
         const subscriptionKeys = Object.keys(this.subscriptions);
         const data = this.props.__hz_data;
         const queryData = {};
-
         subscriptionKeys.forEach(key => {
-          queryData[this.subscriptions[key]] = data.get(key, emptyList);
+          queryData[this.subscriptions[key].name] = data.get(key, emptyList);
         });
 
         return createElement(TargetComponent, {
           ...this.props,
-          ...this.state.data,
           ...queryData,
           horizon: this.client
         });
