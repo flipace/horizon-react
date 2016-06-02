@@ -54,6 +54,7 @@
     "object-hash": "^1.1.2",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
+    "rxjs": "5.0.0-beta.7",
     "seamless-immutable": "^6.1.0"
   },
   "peerDependencies": {
