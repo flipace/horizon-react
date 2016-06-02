@@ -10,7 +10,7 @@ import {
 } from 'react-redux';
 import { addData, changeData, removeData, addSubscription, removeSubscription } from '../actionCreators';
 import hash from 'object-hash';
-console.log(hash);
+
 const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
 const emptyList = Immutable([]);
