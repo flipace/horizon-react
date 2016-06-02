@@ -1,4 +1,4 @@
-import Immutable from 'immutable';
+import Immutable from 'seamless-immutable';
 import isEqual from 'lodash.isequal';
 import isPlainObject from 'is-plain-object';
 import { Component, PropTypes, createElement } from 'react';
@@ -9,10 +9,11 @@ import {
   connect as ReactReduxConnect,
 } from 'react-redux';
 import { addData, changeData, removeData, addSubscription, removeSubscription } from '../actionCreators';
-
+import hash from 'object-hash';
+console.log(hash);
 const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
-const emptyList = Immutable.List();
+const emptyList = Immutable([]);
 const blacklist = ['__hz_data', '__hz_subscriptions'];
 
 /**
@@ -84,7 +85,7 @@ export default function subscribe(opts = {}) {
         for (let i = 0; i < subscriptionKeys.length; i++) {
           const key = subscriptionKeys[i];
 
-          if (nextProps.__hz_data.get(key) !== this.props.__hz_data.get(key)) {
+          if (nextProps.__hz_data[key] !== this.props.__hz_data[key]) {
             return true;
           }
         }
@@ -220,17 +221,17 @@ export default function subscribe(opts = {}) {
       handleQuery(query, name) {
         // if the passed query is false, don't handle it
         if (query) {
-          const sub = Immutable.fromJS({
+          const sub = Immutable({
             ...query._query
           });
 
-          const hash = `sid_${sub.hashCode()}`;
-          this.currentLifeCycleSubscriptions.push(hash);
+          const objectHash = `sid_${hash(sub)}`;
+          this.currentLifeCycleSubscriptions.push(objectHash);
 
           // early exit in case a subscription like this already
           // exists
-          if (this.props.__hz_subscriptions.has(hash)) {
-            this.subscriptions[hash] = { name, hash };
+          if (this.props.__hz_subscriptions[objectHash]) {
+            this.subscriptions[objectHash] = { name, hash: objectHash };
             return true;
           }
 
@@ -245,15 +246,15 @@ export default function subscribe(opts = {}) {
             }
           });
 
-          this.subscriptions[hash] = {
+          this.subscriptions[objectHash] = {
             name,
-            hash,
+            hash: objectHash,
             query: query
               .watch({ rawChanges: true })
-              .subscribe(this.handleData.bind(this, hash))
+              .subscribe(this.handleData.bind(this, objectHash))
           };
 
-          this.props.dispatch(addSubscription(sub, hash));
+          this.props.dispatch(addSubscription(sub, objectHash));
         }
       }
 
@@ -287,7 +288,7 @@ export default function subscribe(opts = {}) {
         const data = this.props.__hz_data;
         const queryData = {};
         subscriptionKeys.forEach(key => {
-          queryData[this.subscriptions[key].name] = data.get(key, emptyList);
+          queryData[this.subscriptions[key].name] = data[key] || emptyList;
         });
 
         return createElement(TargetComponent, {
@@ -302,8 +303,8 @@ export default function subscribe(opts = {}) {
 
     const mapHorizonStateToProps = (store, props) => {
       const horizonProps = {
-        __hz_data: store.horizon.get('data'),
-        __hz_subscriptions: store.horizon.get('subscriptions')
+        __hz_data: store.horizon.data,
+        __hz_subscriptions: store.horizon.subscriptions
       };
 
       if (mapStateToProps && typeof mapStateToProps === 'function') {

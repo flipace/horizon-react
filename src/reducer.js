@@ -1,54 +1,47 @@
-import Immutable from 'immutable';
+import Immutable from 'seamless-immutable';
 import types from './actionTypes';
 
-const initialState = Immutable.fromJS({
+const initialState = Immutable({
   data: {},
   subscriptions: {}
 });
 
 const reducerMap = {
   [types.HZ_ADD_DATA] : (state, { payload: { key, data } }) => {
-    const path = ['data', key];
-
-    if (!state.hasIn(path)) {
-      return state.setIn(path, Immutable.fromJS([data]));
+    if (typeof state.data[key] === 'undefined') {
+      return state.setIn(['data', key], Immutable([data]));
     }
 
-    const newList = Immutable.fromJS([
-      ...state.getIn(path).toJS(),
-      Immutable.fromJS(data)
+    const newList = Immutable([
+      ...state.data[key],
+      data
     ]);
 
-    return state.setIn(path, newList);
+    return state.setIn(['data', key], newList);
   },
   [types.HZ_CHANGE_DATA] : (state, { payload: { key, data } }) => {
-    const path = ['data', key];
-    const index = state.getIn(['data', key])
-      .findIndex(d => d.get('id') === data.id);
+    const index = state.data[key]
+      .findIndex(d => d.id === data.id);
 
     return state.setIn(
-      path,
-      state.getIn(path).set(index, Immutable.fromJS(data))
-    );
-  },
-  [types.HZ_REMOVE_DATA] : (state, { payload: { key, id } }) => {
-    return state.setIn(
       ['data', key],
-      state.getIn(['data', key]).filter( d => {
-        return d.get('id') !== id
-      })
+      state.data[key].set(index, Immutable(data))
     );
   },
+  [types.HZ_REMOVE_DATA] : (state, { payload: { key, id } }) => state.setIn(
+      ['data', key],
+      state.data[key].filter(d => d.id !== id)
+  ),
   [types.HZ_ADD_SUBSCRIPTION] : (state, { payload: { key, sub } }) => {
-    if (state.getIn(['subscriptions', key]) !== sub) {
-      return state.setIn(['subscriptions', key], Immutable.fromJS(sub));
+    if (state.subscriptions[key] !== sub) {
+      return state.setIn(['subscriptions', key], Immutable(sub));
     }
 
     return state;
   },
   [types.HZ_REMOVE_SUBSCRIPTION] : (state, { payload: { hash } }) => {
-    if (state.hasIn(['subscriptions', hash])) {
-      return state.deleteIn(['subscriptions', hash]);
+    if (state.subscriptions[hash]) {
+      return state.set('subscriptions', state.subscriptions.without(hash));
     }
 
     return state;
