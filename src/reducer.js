@@ -1,4 +1,5 @@
 import Immutable from 'seamless-immutable';
+import omit from 'lodash.omit';
 import types from './actionTypes';
 
 const initialState = Immutable({
@@ -51,7 +52,7 @@ const reducerMap = {
 function createReducer (initialState, reducerMap) {
   return (state = initialState, action) => {
     const reducer = reducerMap[action.type];
-    return reducer ? reducer(state, { type: action.type, payload: _.omit(action, 'type') }) : state;
+    return reducer ? reducer(state, { type: action.type, payload: omit(action, 'type') }) : state;
   };
 }
 
