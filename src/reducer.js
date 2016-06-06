@@ -42,7 +42,13 @@ const reducerMap = {
   },
   [types.HZ_REMOVE_SUBSCRIPTION] : (state, { payload: { hash } }) => {
     if (state.subscriptions[hash]) {
-      return state.set('subscriptions', state.subscriptions.without(hash));
+      const newState = state.set('subscriptions', state.subscriptions.without(hash));
+
+      if (newState.data && newState.data[hash]) {
+        return newState.set('data', newState.data.without(hash));
+      }
+
+      return newState;
     }
 
     return state;

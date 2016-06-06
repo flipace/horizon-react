@@ -230,8 +230,13 @@ export default function subscribe(opts = {}) {
 
           // early exit in case a subscription like this already
           // exists
-          if (this.props.__hz_subscriptions[objectHash]) {
+          if (
+            typeof this.subscriptions[objectHash] === 'undefined' &&
+            this.props.__hz_subscriptions[objectHash]
+          ) {
             this.subscriptions[objectHash] = { name, hash: objectHash };
+            return true;
+          } else if (this.subscriptions[objectHash]) {
             return true;
           }
 
@@ -240,6 +245,7 @@ export default function subscribe(opts = {}) {
 
             if (sub.query && sub.name === name) {
               sub.query.unsubscribe();
+
               this.props.dispatch(removeSubscription(
                 sub.hash
               ));
