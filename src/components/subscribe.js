@@ -268,11 +268,6 @@ export default function subscribe(opts = {}) {
        * When new data comes in, we update the state of this component,
        * this will cause a rerender of it's child component with the new
        * data in props.
-       *
-       * @TODO this is probably the place where the data should be propagated
-       * to the redux store. If other components subscribe with the same query,
-       * they should find that there's already a query listening and just grab the
-       * according data from the app state instead of setting up a separate listener.
        */
       handleData = (name, change) => {
         switch (change.type) {
