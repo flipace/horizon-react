@@ -78,6 +78,11 @@ const mapStateToProps = (state, props) => ({
   ui: state.checkedTodos
 });
 
+// and also map dispatch
+const mapDispatchToProps = (dispatch) => ({
+  onClickTodo: (todo) => dispatch({type: 'TOGGLE_TODO', payload: {...todo}})
+});
+
 const TodoList = (props) => (
   <ul>
     {props.todos.map( todo => <Todo {...todo} /> )}
@@ -86,7 +91,8 @@ const TodoList = (props) => (
 
 export default subscribe({
   mapDataToProps,
-  mapStateToProps
+  mapStateToProps,
+  mapDispatchToProps
 })(TodoList)
 ```
 
