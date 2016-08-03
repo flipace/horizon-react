@@ -95,3 +95,21 @@ describe('#mapDataToProps(plainObject):', (test) => {
     mount(<SubscribedComponent store={store} client={horizon} />);
   });
 });
+
+describe('#mapDataToProps(function):', (test) => {
+  test('it should call a passed function', (t) => {
+    t.plan(2);
+    const horizon = HorizonMock();
+    const store = createStore((state) => state);
+    const SubscribedComponent = subscribe({
+      // this function gets called twice
+      // #1 getDataNames
+      // #2 subscribeToFunction
+      mapDataToProps: () => {
+        t.pass();
+        return {};
+      }
+    })(() => <div></div>);
+    mount(<SubscribedComponent store={store} client={horizon} />);
+  });
+});
