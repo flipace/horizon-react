@@ -9,9 +9,9 @@
     "build:umd:min": "cross-env NODE_ENV=production webpack --config=webpack.config.js src/index.js dist/horizon-react.min.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && node ./prepublish",
     "prepublish": "npm run build",
-    "test": "nyc ava",
-    "test-watch": "nyc ava --watch",
-    "report": "npm test && nyc report --reporter=html"
+    "test": "cross-env NODE_ENV=test nyc ava",
+    "test-watch": "cross-env NODE_ENV=test nyc ava --watch",
+    "report": "cross-env NODE_ENV=test npm test && nyc report --reporter=html"
   },
   "repository": {
     "type": "git",
@@ -39,6 +39,10 @@
     ],
     "babel": "inherit"
   },
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false
+  },
   "homepage": "https://github.com/flipace/horizon-react#readme",
   "devDependencies": {
     "ava": "^0.15.2",
@@ -47,6 +51,7 @@
     "babel-core": "6.7.5",
     "babel-eslint": "6.0.0",
     "babel-loader": "6.2.4",
+    "babel-plugin-istanbul": "^1.0.3",
     "babel-plugin-react-transform": "2.0.2",
     "babel-plugin-syntax-jsx": "6.3.13",
     "babel-plugin-transform-class-properties": "6.4.0",
