@@ -159,8 +159,10 @@ export default function subscribe(opts = {}) {
        * Example:
        *
        * const mapDataToProps = (props) => ({
-       *   name: 'todos',
-       *   query: { name: props.name }
+       *   todos: {
+       *     collection: 'todos',
+       *     query: { name: props.name }
+       *   }
        * });
        *
        * @param {String} collection is the name of the collection you want to access
