@@ -9,7 +9,9 @@
     "build:umd:min": "cross-env NODE_ENV=production webpack --config=webpack.config.js src/index.js dist/horizon-react.min.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && node ./prepublish",
     "prepublish": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc ava",
+    "test-watch": "nyc ava --watch",
+    "report": "npm test && nyc report --reporter=html"
   },
   "repository": {
     "type": "git",
@@ -24,8 +26,23 @@
   "bugs": {
     "url": "https://github.com/flipace/horizon-react/issues"
   },
+  "ava": {
+    "files": [
+      "./src/**/*.test.js"
+    ],
+    "failFast": true,
+    "tap": true,
+    "verbose": true,
+    "require": [
+      "babel-register",
+      "./test/helpers/setup-browser-env.js"
+    ],
+    "babel": "inherit"
+  },
   "homepage": "https://github.com/flipace/horizon-react#readme",
   "devDependencies": {
+    "ava": "^0.15.2",
+    "ava-spec": "^1.0.1",
     "babel-cli": "6.7.5",
     "babel-core": "6.7.5",
     "babel-eslint": "6.0.0",
@@ -39,13 +56,19 @@
     "babel-preset-stage-0": "6.5.0",
     "babel-register": "^6.3.13",
     "cross-env": "^1.0.7",
+    "enzyme": "^2.4.1",
     "es3ify": "^0.2.0",
     "eslint": "^2.8.0",
     "eslint-config-airbnb": "^8.0.0",
     "eslint-plugin-import": "^1.5.0",
     "eslint-plugin-jsx-a11y": "^1.0.2",
     "eslint-plugin-react": "^5.0.1",
-    "glob": "^6.0.4"
+    "glob": "^6.0.4",
+    "jsdom": "^9.4.1",
+    "jsdom-global": "^2.0.0",
+    "nyc": "^7.1.0",
+    "react": "^15.3.0",
+    "react-addons-test-utils": "^15.3.0"
   },
   "dependencies": {
     "is-plain-object": "^2.0.1",
