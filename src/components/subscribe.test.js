@@ -18,6 +18,33 @@ describe('no options:', (test) => {
   });
 });
 
+describe('#mapDataToProps(array):', (test) => {
+  test('it should call all array functions', (t) => {
+    t.plan(2);
+    const horizon = HorizonMock();
+    const store = createStore((state) => state);
+    const SubscribedComponent = subscribe({
+      mapDataToProps: [
+        {
+          name: 'widgets',
+          query: (hz) => {
+            t.pass();
+            return hz('widgets');
+          }
+        },
+        {
+          name: 'widgets2',
+          query: (hz) => {
+            t.pass();
+            return hz('widgets2');
+          }
+        }
+      ]
+    })(() => <div></div>);
+    mount(<SubscribedComponent store={store} client={horizon} />);
+  });
+});
+
 describe('#mapDataToProps(plainObject):', (test) => {
   test('it should call all key functions', (t) => {
     t.plan(2);
