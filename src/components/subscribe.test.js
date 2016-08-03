@@ -140,3 +140,55 @@ describe('#mapDataToProps(function):', (test) => {
     mount(<SubscribedComponent store={store} client={horizon} />);
   });
 });
+
+describe('#handleData', (test) => {
+  const ChildComponent = (props) => (
+    <div>{props.widgets.map((w) => <span key={w.id}>{w.name}</span>)}</div>
+  );
+
+  test('it should convert a single object into an array on props', (t) => {
+    t.plan(1);
+    const horizon = HorizonMock({
+      data: {
+        id: 1,
+        name: 'hello'
+      }
+    });
+    const store = createStore((state) => state);
+    const SubscribedComponent = subscribe({
+      mapDataToProps: {
+        widgets: (hz) => hz('widgets')
+      }
+    })(ChildComponent);
+    const mounted = mount(<SubscribedComponent store={store} client={horizon} />);
+    t.true(mounted.find('span').length === 1);
+  });
+
+  test('it should pass an array to props', (t) => {
+    t.plan(1);
+    const horizon = HorizonMock({
+      data: [
+        {
+          id: 1,
+          name: 'hello'
+        },
+        {
+          id: 2,
+          name: 'hello 2'
+        },
+        {
+          id: 3,
+          name: 'hello 3'
+        }
+      ]
+    });
+    const store = createStore((state) => state);
+    const SubscribedComponent = subscribe({
+      mapDataToProps: {
+        widgets: (hz) => hz('widgets')
+      }
+    })(ChildComponent);
+    const mounted = mount(<SubscribedComponent store={store} client={horizon} />);
+    t.true(mounted.find('div span').length === 3);
+  });
+});
