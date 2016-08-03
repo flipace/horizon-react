@@ -2,7 +2,7 @@ import { describe } from 'ava-spec';
 import React from 'react';
 import { mount } from 'enzyme';
 
-import HorizonMock from '../utils/test/HorizonMock';
+import HorizonMock, { horizonSub } from '../utils/test/HorizonMock';
 import { createStore } from 'redux';
 
 import subscribe from './subscribe';
@@ -109,6 +109,33 @@ describe('#mapDataToProps(function):', (test) => {
         t.pass();
         return {};
       }
+    })(() => <div></div>);
+    mount(<SubscribedComponent store={store} client={horizon} />);
+  });
+
+  test('it should call findAll for returned queryParams', (t) => {
+    t.plan(1);
+    const query = { name: 'test' };
+
+    function TestHorizonMock() {
+      return () => ({
+        findAll(passedQuery) {
+          t.true(passedQuery === query);
+          return horizonSub();
+        },
+        ...horizonSub()
+      });
+    }
+
+    const horizon = TestHorizonMock();
+    const store = createStore((state) => state);
+    const SubscribedComponent = subscribe({
+      mapDataToProps: () => ({
+        widgets: {
+          collection: 'widgets',
+          query
+        }
+      })
     })(() => <div></div>);
     mount(<SubscribedComponent store={store} client={horizon} />);
   });
