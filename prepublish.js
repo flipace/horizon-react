@@ -1,3 +1,5 @@
+/*eslint-disable*/
+
 var glob = require('glob');
 var fs = require('fs');
 var es3ify = require('es3ify');
