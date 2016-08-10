@@ -145,7 +145,7 @@ export default function subscribe(opts = {}) {
 
             this.handleQuery(query(this.client, props), name);
           }
-        )
+        );
       }
 
       /**
@@ -222,7 +222,7 @@ export default function subscribe(opts = {}) {
 
         // always return an array, even if there's just one document
         if (isPlainObject(docs)) {
-          data = [docs]
+          data = [docs];
         }
 
         this.setState({
@@ -253,5 +253,5 @@ export default function subscribe(opts = {}) {
       mergeProps,
       options
     )(DataSubscriber);
-  }
+  };
 }
