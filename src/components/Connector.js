@@ -10,7 +10,7 @@ export default class extends Component {
     store: PropTypes.shape({
       subscribe: PropTypes.func.isRequired,
       dispatch: PropTypes.func.isRequired,
-      getState: PropTypes.func.isRequired,
+      getState: PropTypes.func.isRequired
     }),
     horizonProps: PropTypes.object,
     horizon: PropTypes.func,
