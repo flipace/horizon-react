@@ -65,10 +65,10 @@ export default function subscribe(opts = {}) {
             {}
           );
         } else if (isPlainObject(mapDataToProps)) {
-          return  this.getObjectWithDataKeys(
+          return this.getObjectWithDataKeys(
             Object.keys(mapDataToProps)
           );
-        } else if (typeof mapDataToProps === 'function'){
+        } else if (typeof mapDataToProps === 'function') {
           return this.getObjectWithDataKeys(
             Object.keys(mapDataToProps(props))
           );
@@ -76,7 +76,7 @@ export default function subscribe(opts = {}) {
       }
 
       getObjectWithDataKeys(keys) {
-        return keys.reduce( (acc, name) => {
+        return keys.reduce((acc, name) => {
           acc[name] = [];
           return acc;
         }, {});
@@ -90,9 +90,9 @@ export default function subscribe(opts = {}) {
       subscribe(props) {
         if (Array.isArray(mapDataToProps)) {
           this.subscribeToArray(props);
-        } else if (isPlainObject(mapDataToProps)){
+        } else if (isPlainObject(mapDataToProps)) {
           this.subscribeToObject(props);
-        } else if (typeof mapDataToProps === 'function'){
+        } else if (typeof mapDataToProps === 'function') {
           this.subscribeToFunction(props);
         }
 
