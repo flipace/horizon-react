@@ -26,13 +26,6 @@ export default class extends Component {
     store: PropTypes.object
   };
 
-  getChildContext() {
-    return {
-      horizon: this.horizon,
-      store: this.store
-    };
-  }
-
   constructor(props, context) {
     super(props, context);
 
@@ -62,6 +55,13 @@ export default class extends Component {
     this.horizon.connect(this.onStatus);
   }
 
+  getChildContext() {
+    return {
+      horizon: this.horizon,
+      store: this.store
+    };
+  }
+
   onStatus = (status) => {
     this.setState({
       hzStatus: status
@@ -75,7 +75,7 @@ export default class extends Component {
   }
 
   renderConnected() {
-    return Children.only(this.props.children)
+    return Children.only(this.props.children);
   }
 
   renderLoading() {

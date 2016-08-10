@@ -60,6 +60,14 @@ export default function subscribe(opts = {}) {
         this.unsubscribe();
       }
 
+      render() {
+        return createElement(TargetComponent, {
+          ...this.props,
+          ...this.state.data,
+          horizon: this.client
+        });
+      }
+
       getDataNames(props) {
         if (Array.isArray(mapDataToProps)) {
           return mapDataToProps.reduce(
@@ -235,14 +243,6 @@ export default function subscribe(opts = {}) {
           }
         });
       };
-
-      render() {
-        return createElement(TargetComponent, {
-          ...this.props,
-          ...this.state.data,
-          horizon: this.client
-        });
-      }
     }
 
     /**
