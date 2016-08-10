@@ -168,7 +168,7 @@ export default function subscribe(opts = {}) {
       subscribeToFunction(props) {
         const subscribeTo = mapDataToProps(props);
 
-        for (let name of Object.keys(subscribeTo)) {
+        for (const name of Object.keys(subscribeTo)) {
           let queryResult;
           const { collection, c, query } = subscribeTo[name];
 
