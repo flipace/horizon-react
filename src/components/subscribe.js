@@ -14,7 +14,7 @@ const getDisplayName = WrappedComponent => WrappedComponent.displayName ||
  * Subscribes to data specified in mapData
  */
 export default function subscribe(opts = {}) {
-  let { mapDataToProps } = opts;
+  const { mapDataToProps } = opts;
 
   delete opts.mapDataToProps;
 
