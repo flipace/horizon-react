@@ -1,6 +1,4 @@
 import { PropTypes, Component, createElement, Children } from 'react';
-import { render } from 'react-dom';
-import isPlainObject from 'is-plain-object';
 import Horizon from '@horizon/client';
 
 /**
@@ -12,7 +10,7 @@ export default class extends Component {
     store: PropTypes.shape({
       subscribe: PropTypes.func.isRequired,
       dispatch: PropTypes.func.isRequired,
-      getState: PropTypes.func.isRequired,
+      getState: PropTypes.func.isRequired
     }),
     horizonProps: PropTypes.object,
     horizon: PropTypes.func,
@@ -27,13 +25,6 @@ export default class extends Component {
     horizon: PropTypes.func,
     store: PropTypes.object
   };
-
-  getChildContext() {
-    return {
-      horizon: this.horizon,
-      store: this.store
-    };
-  }
 
   constructor(props, context) {
     super(props, context);
@@ -64,6 +55,13 @@ export default class extends Component {
     this.horizon.connect(this.onStatus);
   }
 
+  getChildContext() {
+    return {
+      horizon: this.horizon,
+      store: this.store
+    };
+  }
+
   onStatus = (status) => {
     this.setState({
       hzStatus: status
@@ -77,7 +75,7 @@ export default class extends Component {
   }
 
   renderConnected() {
-    return Children.only(this.props.children)
+    return Children.only(this.props.children);
   }
 
   renderLoading() {

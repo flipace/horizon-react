@@ -2,20 +2,19 @@ import isEqual from 'lodash.isequal';
 import isPlainObject from 'is-plain-object';
 import { Component, PropTypes, createElement } from 'react';
 import {
-  IMapStateToProps,
-  IMapDispatchToProps,
-  IConnectOptions,
-  connect as ReactReduxConnect,
+  connect as ReactReduxConnect
 } from 'react-redux';
 
 const emptyArray = [];
-const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
+const getDisplayName = WrappedComponent => WrappedComponent.displayName ||
+  WrappedComponent.name ||
+  'Component';
 
 /**
  * Subscribes to data specified in mapData
  */
 export default function subscribe(opts = {}) {
-  let { mapDataToProps } = opts;
+  const { mapDataToProps } = opts;
 
   delete opts.mapDataToProps;
 
@@ -61,6 +60,14 @@ export default function subscribe(opts = {}) {
         this.unsubscribe();
       }
 
+      render() {
+        return createElement(TargetComponent, {
+          ...this.props,
+          ...this.state.data,
+          horizon: this.client
+        });
+      }
+
       getDataNames(props) {
         if (Array.isArray(mapDataToProps)) {
           return mapDataToProps.reduce(
@@ -68,18 +75,19 @@ export default function subscribe(opts = {}) {
             {}
           );
         } else if (isPlainObject(mapDataToProps)) {
-          return  this.getObjectWithDataKeys(
+          return this.getObjectWithDataKeys(
             Object.keys(mapDataToProps)
           );
-        } else if (typeof mapDataToProps === 'function'){
+        } else if (typeof mapDataToProps === 'function') {
           return this.getObjectWithDataKeys(
             Object.keys(mapDataToProps(props))
           );
         }
+        return null;
       }
 
       getObjectWithDataKeys(keys) {
-        return keys.reduce( (acc, name) => {
+        return keys.reduce((acc, name) => {
           acc[name] = [];
           return acc;
         }, {});
@@ -93,9 +101,9 @@ export default function subscribe(opts = {}) {
       subscribe(props) {
         if (Array.isArray(mapDataToProps)) {
           this.subscribeToArray(props);
-        } else if (isPlainObject(mapDataToProps)){
+        } else if (isPlainObject(mapDataToProps)) {
           this.subscribeToObject(props);
-        } else if (typeof mapDataToProps === 'function'){
+        } else if (typeof mapDataToProps === 'function') {
           this.subscribeToFunction(props);
         }
 
@@ -106,11 +114,11 @@ export default function subscribe(opts = {}) {
        * Unsubscribe from all subscriptions.
        */
       unsubscribe() {
-        Object.keys(this.subscriptions).forEach( k =>
-          this.subscriptions[k].dispose
-          ? this.subscriptions[k].dispose()
-          : null
-        );
+        Object.keys(this.subscriptions).forEach(k => {
+          if (this.subscriptions[k].dispose) {
+            this.subscriptions[k].dispose();
+          }
+        });
 
         this.setState({ subscribed: false });
       }
@@ -148,7 +156,7 @@ export default function subscribe(opts = {}) {
 
             this.handleQuery(query(this.client, props), name);
           }
-        )
+        );
       }
 
       /**
@@ -171,7 +179,7 @@ export default function subscribe(opts = {}) {
       subscribeToFunction(props) {
         const subscribeTo = mapDataToProps(props);
 
-        for (let name of Object.keys(subscribeTo)) {
+        for (const name of Object.keys(subscribeTo)) {
           let queryResult;
           const { collection, c, query } = subscribeTo[name];
 
@@ -199,14 +207,14 @@ export default function subscribe(opts = {}) {
 
           // if the new query is the same as the previous one,
           // we keep the previous one
-          if (isEqual(prevQuery, query._query)) return;
+          if (isEqual(prevQuery, query._query)) return; // eslint-disable-line no-underscore-dangle
         }
 
         this.subscriptions[name] = {
           subscription: query
             .watch()
             .forEach(this.handleData.bind(this, name)),
-          query: query._query
+          query: query._query // eslint-disable-line no-underscore-dangle
         };
       }
 
@@ -225,7 +233,7 @@ export default function subscribe(opts = {}) {
 
         // always return an array, even if there's just one document
         if (isPlainObject(docs)) {
-          data = [docs]
+          data = [docs];
         }
 
         this.setState({
@@ -235,14 +243,6 @@ export default function subscribe(opts = {}) {
           }
         });
       };
-
-      render() {
-        return createElement(TargetComponent, {
-          ...this.props,
-          ...this.state.data,
-          horizon: this.client
-        });
-      }
     }
 
     /**
@@ -256,5 +256,5 @@ export default function subscribe(opts = {}) {
       mergeProps,
       options
     )(DataSubscriber);
-  }
+  };
 }
