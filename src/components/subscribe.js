@@ -199,14 +199,14 @@ export default function subscribe(opts = {}) {
 
           // if the new query is the same as the previous one,
           // we keep the previous one
-          if (isEqual(prevQuery, query._query)) return;
+          if (isEqual(prevQuery, query._query)) return; // eslint-disable-line no-underscore-dangle
         }
 
         this.subscriptions[name] = {
           subscription: query
             .watch()
             .forEach(this.handleData.bind(this, name)),
-          query: query._query
+          query: query._query // eslint-disable-line no-underscore-dangle
         };
       }
 
