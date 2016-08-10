@@ -2,10 +2,7 @@ import isEqual from 'lodash.isequal';
 import isPlainObject from 'is-plain-object';
 import { Component, PropTypes, createElement } from 'react';
 import {
-  IMapStateToProps,
-  IMapDispatchToProps,
-  IConnectOptions,
-  connect as ReactReduxConnect,
+  connect as ReactReduxConnect
 } from 'react-redux';
 
 const emptyArray = [];

@@ -1,6 +1,4 @@
 import { PropTypes, Component, createElement, Children } from 'react';
-import { render } from 'react-dom';
-import isPlainObject from 'is-plain-object';
 import Horizon from '@horizon/client';
 
 /**
