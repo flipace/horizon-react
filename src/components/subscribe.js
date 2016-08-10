@@ -75,6 +75,7 @@ export default function subscribe(opts = {}) {
             Object.keys(mapDataToProps(props))
           );
         }
+        return null;
       }
 
       getObjectWithDataKeys(keys) {
