@@ -6,7 +6,9 @@ import {
 } from 'react-redux';
 
 const emptyArray = [];
-const getDisplayName = WrappedComponent => WrappedComponent.displayName || WrappedComponent.name || 'Component';
+const getDisplayName = WrappedComponent => WrappedComponent.displayName ||
+  WrappedComponent.name ||
+  'Component';
 
 /**
  * Subscribes to data specified in mapData
