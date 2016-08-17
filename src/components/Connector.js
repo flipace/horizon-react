@@ -44,15 +44,6 @@ export default class extends Component {
     : false;
 
     this.state = initialState;
-
-    // set up connection status callbacks
-    this.horizon.onDisconnected(this.onStatus);
-    this.horizon.onReady(this.onStatus);
-    this.horizon.onSocketError(this.onStatus);
-
-    if (props.horizon) return;
-
-    this.horizon.connect(this.onStatus);
   }
 
   getChildContext() {
@@ -60,6 +51,17 @@ export default class extends Component {
       horizon: this.horizon,
       store: this.store
     };
+  }
+
+  componentWillMount() {
+    // set up connection status callbacks
+    this.horizon.onDisconnected(this.onStatus);
+    this.horizon.onReady(this.onStatus);
+    this.horizon.onSocketError(this.onStatus);
+
+    if (this.props.horizon) return;
+
+    this.horizon.connect(this.onStatus);
   }
 
   onStatus = (status) => {

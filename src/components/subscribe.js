@@ -57,7 +57,7 @@ export default function subscribe(opts = {}) {
 
       componentWillUnmount() {
         // make sure to dispose all subscriptions
-        this.unsubscribe();
+        this.unsubscribe(false);
       }
 
       render() {
@@ -113,14 +113,16 @@ export default function subscribe(opts = {}) {
       /**
        * Unsubscribe from all subscriptions.
        */
-      unsubscribe() {
+      unsubscribe(updateState = true) {
         Object.keys(this.subscriptions).forEach(k => {
           if (this.subscriptions[k].dispose) {
             this.subscriptions[k].dispose();
           }
         });
 
-        this.setState({ subscribed: false });
+        if (updateState) {
+          this.setState({ subscribed: false });
+        }
       }
 
       /**
