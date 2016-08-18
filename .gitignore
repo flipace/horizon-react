@@ -5,3 +5,6 @@ stats.json
 .DS_STORE*
 lib
 dist
+rethinkdb_data
+coverage
+.nyc_output
