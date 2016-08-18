@@ -1,5 +1,8 @@
 # Change Log
 
+### v0.3.1
+- fixes an issue where `setState` would be called before the `Connector` was mounted
+
 ### v0.3.0
 - updated to *horizon/client@1.0.1* #celebrate! https://horizon.io
 - updated ready status indicator code and removed timeout
