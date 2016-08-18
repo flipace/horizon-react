@@ -1,5 +1,8 @@
 # Change Log
 
+### v0.3.2
+- No Changes
+
 ### v0.3.1
 - fixes an issue where `setState` would be called before the `Connector` was mounted
 
