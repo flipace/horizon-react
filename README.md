@@ -112,11 +112,20 @@ const AddTodoButton = (props) => (
 export default subscribe()(AddTodoButton);
 ```
 
+### Boilerplate repositories
+
+- [horizon-react-webpack-hmr-boilerplate](https://github.com/chrbala/horizon-react-webpack-hmr-boilerplate)
+- [lovli.js](https://github.com/flipace/lovli.js)
+
 ### Contributing
 
 Pull Requests are very welcome!
 
 If you find any issues, please report them via [Github Issues](https://github.com/flipace/horizon-react/issues)!
+
+### Contributors
+- Patrick Neschkudla [@flipace](https://github.com/flipace)
+- Ollie Relph [@BBB](https://github.com/BBB)
 
 ### License
 (MIT)
