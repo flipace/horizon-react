@@ -51,13 +51,13 @@
     "@horizon/client": "^1.0.1",
     "is-plain-object": "^2.0.1",
     "lodash.isequal": "^4.1.4",
-    "react-dom": "^15.0.1",
     "react-redux": "^4.4.5",
     "exports-loader": "^0.6.3",
     "imports-loader": "^0.6.5",
     "redux": "^3.5.2"
   },
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.1"
+    "react": "^0.14.0 || ^15.0.1",
+    "react-dom": "^0.14.0 || ^15.0.1"
   }
 }
