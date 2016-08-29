@@ -1,5 +1,10 @@
 # Change Log
 
+### v0.3.3
+- move react-dom and horizon-client to peer dependencies, remove src folder from npmignore
+- Add documentation for mapDispatchToProps (#15)
+- added contributors and boilerplate sections to readme, remove eslint-disable-line from prepublish.js
+
 ### v0.3.2
 - No Changes
 
