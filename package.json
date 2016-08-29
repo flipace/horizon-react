@@ -5,8 +5,8 @@
   "main": "./lib/index.js",
   "scripts": {
     "build:lib": "NODE_ENV=development babel src --out-dir lib",
-    "build:umd": "cross-env NODE_ENV=development webpack src/index.js dist/horizon-react.js",
-    "build:umd:min": "cross-env NODE_ENV=production webpack src/index.js dist/horizon-react.min.js",
+    "build:umd": "cross-env NODE_ENV=development webpack --config=webpack.config.js src/index.js dist/horizon-react.js",
+    "build:umd:min": "cross-env NODE_ENV=production webpack --config=webpack.config.js src/index.js dist/horizon-react.min.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && node ./prepublish",
     "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
