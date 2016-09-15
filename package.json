@@ -10,8 +10,8 @@
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && node ./prepublish",
     "prepublish": "npm run build",
     "test": "cross-env NODE_ENV=test nyc ava",
-    "test-watch": "cross-env NODE_ENV=test nyc ava --watch",
-    "report": "cross-env NODE_ENV=test npm test && nyc report --reporter=html"
+    "test:watch": "cross-env NODE_ENV=test nyc ava --watch",
+    "test:report": "cross-env NODE_ENV=test npm test && nyc report --reporter=html"
   },
   "repository": {
     "type": "git",
