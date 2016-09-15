@@ -4,12 +4,14 @@
   "description": "React bindings for horizon",
   "main": "./lib/index.js",
   "scripts": {
-    "build:lib": "NODE_ENV=development babel src --out-dir lib",
+    "build:lib": "NODE_ENV=development babel src --out-dir lib --ignore test.js",
     "build:umd": "cross-env NODE_ENV=development webpack --config=webpack.config.js src/index.js dist/horizon-react.js",
     "build:umd:min": "cross-env NODE_ENV=production webpack --config=webpack.config.js src/index.js dist/horizon-react.min.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && node ./prepublish",
     "prepublish": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test nyc ava",
+    "test:watch": "cross-env NODE_ENV=test nyc ava --watch",
+    "test:report": "cross-env NODE_ENV=test npm test && nyc report --reporter=html"
   },
   "repository": {
     "type": "git",
@@ -24,12 +26,33 @@
   "bugs": {
     "url": "https://github.com/flipace/horizon-react/issues"
   },
+  "ava": {
+    "files": [
+      "./src/**/*.test.js"
+    ],
+    "failFast": true,
+    "tap": true,
+    "verbose": true,
+    "require": [
+      "babel-register",
+      "./test/helpers/setup-browser-env.js"
+    ],
+    "babel": "inherit"
+  },
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false
+  },
   "homepage": "https://github.com/flipace/horizon-react#readme",
   "devDependencies": {
+    "@horizon/client": "^2.0.0",
+    "ava": "^0.15.2",
+    "ava-spec": "^1.0.1",
     "babel-cli": "6.7.5",
     "babel-core": "6.7.5",
     "babel-eslint": "6.0.0",
     "babel-loader": "6.2.4",
+    "babel-plugin-istanbul": "^1.0.3",
     "babel-plugin-react-transform": "2.0.2",
     "babel-plugin-syntax-jsx": "6.3.13",
     "babel-plugin-transform-class-properties": "6.4.0",
@@ -39,13 +62,20 @@
     "babel-preset-stage-0": "6.5.0",
     "babel-register": "^6.3.13",
     "cross-env": "^1.0.7",
+    "enzyme": "^2.4.1",
     "es3ify": "^0.2.0",
     "eslint": "^2.8.0",
     "eslint-config-airbnb": "^8.0.0",
     "eslint-plugin-import": "^1.5.0",
     "eslint-plugin-jsx-a11y": "^1.0.2",
     "eslint-plugin-react": "^5.0.1",
-    "glob": "^6.0.4"
+    "glob": "^6.0.4",
+    "jsdom": "^9.4.1",
+    "jsdom-global": "^2.0.0",
+    "nyc": "^7.1.0",
+    "react": "^15.3.0",
+    "react-addons-test-utils": "^15.3.0",
+    "webpack": "^1.13.2"
   },
   "dependencies": {
     "is-plain-object": "^2.0.1",
@@ -56,7 +86,7 @@
     "redux": "^3.5.2"
   },
   "peerDependencies": {
-    "@horizon/client": "^1.0.1",
+    "@horizon/client": "^1.0.1 || ^2.0.0",
     "react": "^0.14.0 || ^15.0.1",
     "react-dom": "^0.14.0 || ^15.0.1"
   }
