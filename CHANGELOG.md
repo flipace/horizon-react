@@ -1,5 +1,9 @@
 # Change Log
 
+### v0.4.0
+- updated to `horizon/client@2.0.0` #23
+- added tests
+
 ### v0.3.3
 - move react-dom and horizon-client to peer dependencies, remove src folder from npmignore
 - Add documentation for mapDispatchToProps (#15)
