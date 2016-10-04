@@ -1,5 +1,8 @@
 # Change Log
 
+### v0.5.0
+- got rid of redux dependencies
+
 ### v0.4.0
 - updated to `horizon/client@2.0.0` #23
 - added tests
