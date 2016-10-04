@@ -5,7 +5,7 @@ import Horizon from '@horizon/client';
  * Initializes connection to Horizon server and passes
  * hzConnected prop to enhanced component.
  */
-export default class extends Component {
+export default class Connector extends Component {
   static propTypes = {
     store: PropTypes.shape({
       subscribe: PropTypes.func.isRequired,
@@ -18,7 +18,12 @@ export default class extends Component {
   };
 
   static defaultProps = {
-    horizonProps: {}
+    horizonProps: {},
+    store: {
+      subscribe() {},
+      dispatch() {},
+      getState() { return {}; }
+    }
   };
 
   static childContextTypes = {
