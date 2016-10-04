@@ -1,14 +1,21 @@
 import isEqual from 'lodash.isequal';
 import isPlainObject from 'is-plain-object';
 import { Component, PropTypes, createElement } from 'react';
-import {
-  connect as ReactReduxConnect
-} from 'react-redux';
 
 const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName ||
   WrappedComponent.name ||
   'Component';
+
+const reduxIsAvailable = () => {
+  try {
+    require.resolve('redux');
+    require.resolve('react-redux');
+    return true;
+  } catch (e) {} // eslint-disable-line
+
+  return false;
+};
 
 /**
  * Subscribes to data specified in mapData
@@ -37,11 +44,13 @@ export default function subscribe(opts = {}) {
         this.data = {};
         this.mutations = {};
 
+        this.useRedux = reduxIsAvailable() && this.store;
+
         this.state = {
           subscribed: false,
           updates: 0,
           data: this.getDataNames(props),
-          storeState: Object.assign({}, this.store.getState())
+          storeState: this.useRedux ? Object.assign({}, this.store.getState()) : {}
         };
       }
 
@@ -247,16 +256,22 @@ export default function subscribe(opts = {}) {
       };
     }
 
-    /**
-     * Pass options to redux "connect" so there's no need to use
-     * two wrappers in application code.
-     */
-    const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
-    return ReactReduxConnect(
-      mapStateToProps,
-      mapDispatchToProps,
-      mergeProps,
-      options
-    )(DataSubscriber);
+    if (reduxIsAvailable) {
+      /**
+       * Pass options to redux "connect" so there's no need to use
+       * two wrappers in application code.
+       */
+      const { mapStateToProps, mapDispatchToProps, mergeProps, options } = opts;
+      const redux = require('react-redux');
+
+      return redux.connect(
+        mapStateToProps,
+        mapDispatchToProps,
+        mergeProps,
+        options
+      )(DataSubscriber);
+    }
+
+    return DataSubscriber;
   };
 }

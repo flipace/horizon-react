@@ -16,6 +16,14 @@ describe('no options:', (test) => {
     mount(<SubscribedComponent store={store} client={horizon} />);
     t.pass();
   });
+
+  test('it should work with a mocked redux store', (t) => {
+    t.plan(1);
+    const horizon = HorizonMock();
+    const SubscribedComponent = subscribe()(() => <div></div>);
+    mount(<SubscribedComponent store={{ getState: () => ({}) }} client={horizon} />);
+    t.pass();
+  });
 });
 
 describe('#mapDataToProps(array):', (test) => {

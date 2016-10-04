@@ -11,7 +11,12 @@ const config = {
       }
     ]
   },
-  plugins: []
+  plugins: [],
+  externals: {
+    react: 'react',
+    redux: 'redux',
+    'react-redux': 'react-redux'
+  }
 };
 
 if (process.env.NODE_ENV !== 'development') {
