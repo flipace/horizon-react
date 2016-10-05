@@ -21,7 +21,12 @@ describe('no options:', (test) => {
     t.plan(1);
     const horizon = HorizonMock();
     const SubscribedComponent = subscribe()(() => <div></div>);
-    mount(<SubscribedComponent store={{ getState: () => ({}) }} client={horizon} />);
+    const mockedStore = {
+      subscribe() {},
+      dispatch() {},
+      getState: () => ({})
+    };
+    mount(<SubscribedComponent store={mockedStore} client={horizon} />);
     t.pass();
   });
 });
