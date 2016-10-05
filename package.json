@@ -9,9 +9,11 @@
     "build:umd:min": "cross-env NODE_ENV=production webpack --config=webpack.config.js src/index.js dist/horizon-react.min.js",
     "build": "npm run build:lib && npm run build:umd && npm run build:umd:min && node ./prepublish",
     "prepublish": "npm run build",
-    "test": "cross-env NODE_ENV=test nyc ava",
-    "test:watch": "cross-env NODE_ENV=test nyc ava --watch",
-    "test:report": "cross-env NODE_ENV=test npm test && nyc report --reporter=html"
+    "test": "cross-env NODE_ENV=test ava",
+    "test:watch": "cross-env NODE_ENV=test ava --watch",
+    "test:report": "cross-env NODE_ENV=test npm test && nyc report --reporter=html",
+    "test:cov": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text npm test",
+    "test:codecov": "cross-env NODE_ENV=test cat ./coverage/lcov.info | ./node_modules/codecov.io/bin/codecov.io.js"
   },
   "repository": {
     "type": "git",
@@ -61,6 +63,7 @@
     "babel-preset-react": "6.5.0",
     "babel-preset-stage-0": "6.5.0",
     "babel-register": "^6.3.13",
+    "codecov.io": "^0.1.6",
     "cross-env": "^1.0.7",
     "enzyme": "^2.4.1",
     "es3ify": "^0.2.0",
@@ -75,6 +78,8 @@
     "nyc": "^7.1.0",
     "react": "^15.3.0",
     "react-addons-test-utils": "^15.3.0",
+    "react-dom": "^15.3.0",
+    "react-redux": "^4.4.5",
     "webpack": "^1.13.2"
   },
   "dependencies": {
