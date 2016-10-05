@@ -4,6 +4,10 @@
 [![bitHound Overall Score](https://www.bithound.io/github/flipace/horizon-react/badges/score.svg)](https://www.bithound.io/github/flipace/horizon-react)
 [![bitHound Dependencies](https://www.bithound.io/github/flipace/horizon-react/badges/dependencies.svg)](https://www.bithound.io/github/flipace/horizon-react/master/dependencies/npm)
 [![bitHound Code](https://www.bithound.io/github/flipace/horizon-react/badges/code.svg)](https://www.bithound.io/github/flipace/horizon-react)
+
+[![travis-ci](https://travis-ci.org/flipace/horizon-react.svg)](https://travis-ci.org/flipace/horizon-react/)
+[![codecov.io](http://codecov.io/github/flipace/horizon-react/coverage.svg?branch=master)](http://codecov.io/github/flipace/horizon-react/branch=master)
+
 # horizon-react
 React bindings for [rethinkdb/horizon](https://github.com/rethinkdb/horizon).
 
