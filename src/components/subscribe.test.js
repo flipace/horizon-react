@@ -29,6 +29,25 @@ describe('no options:', (test) => {
     mount(<SubscribedComponent store={mockedStore} client={horizon} />);
     t.pass();
   });
+
+  test('it should fail with an incompletely mocked redux store', (t) => {
+    t.plan(1);
+    const horizon = HorizonMock();
+    const SubscribedComponent = subscribe()(() => <div></div>);
+    const mockedStore = {
+      getState: () => ({})
+    };
+
+    const oldError = console.error;
+    console.error = (error) => {
+      if (/Required prop \`store\.subscribe\` was not specified/.test(error)) {
+        return t.pass();
+      }
+      oldError(error);
+      console.error = oldError;
+    };
+    mount(<SubscribedComponent store={mockedStore} client={horizon} />);
+  });
 });
 
 describe('#mapDataToProps(array):', (test) => {
