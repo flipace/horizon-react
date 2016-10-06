@@ -1,5 +1,6 @@
 import { describe } from 'ava-spec';
 import React from 'react';
+import proxyquire from 'proxyquire';
 import { mount } from 'enzyme';
 
 import HorizonMock, { horizonSub } from '../utils/test/HorizonMock';
@@ -13,7 +14,33 @@ describe('no options:', (test) => {
     const horizon = HorizonMock();
     const store = createStore((state) => state);
     const SubscribedComponent = subscribe()(() => <div></div>);
-    mount(<SubscribedComponent store={store} client={horizon} />);
+    const mounted = mount(<SubscribedComponent store={store} client={horizon} />);
+    mounted.setProps({ horizonProps:{} });
+    t.pass();
+  });
+});
+
+describe('no redux:', (test) => {
+  test('it should not throw an error when redux is not found', (t) => {
+    t.plan(1);
+    const wrongSubscribe = proxyquire('./subscribe', {
+      '../utils/requireResolve': {
+        default: (path) => {
+          if (path === 'redux') {
+            throw new Error(`Cannot find module '${path}'`);
+          }
+          return require.resolve(path);
+        }
+      }
+    }).default;
+    const horizon = HorizonMock();
+    const SubscribedComponent = wrongSubscribe()(() => <div></div>);
+    const mockedStore = {
+      subscribe() {},
+      dispatch() {},
+      getState: () => ({})
+    };
+    mount(<SubscribedComponent store={mockedStore} client={horizon} />);
     t.pass();
   });
 
@@ -73,6 +100,35 @@ describe('#mapDataToProps(array):', (test) => {
         }
       ]
     })(() => <div></div>);
+    mount(<SubscribedComponent store={store} client={horizon} />);
+  });
+
+  test('it should use the last subscription for the same name', (t) => {
+    t.plan(1);
+    const store = createStore((state) => state);
+    const widgets2 = [{ id: 2, }];
+    const horizon = HorizonMock();
+    const SubscribedComponent = subscribe({
+      mapDataToProps: [
+        {
+          name: 'widgets',
+          query: () => {
+            const hz = HorizonMock({ data: [{ id: 1 }] });
+            return hz('widgets');
+          }
+        },
+        {
+          name: 'widgets',
+          query: () => {
+            const hz = HorizonMock({ data: widgets2 });
+            return hz('widget2');
+          }
+        }
+      ]
+    })((props) => {
+      t.true(props.widgets === widgets2);
+      return null;
+    });
     mount(<SubscribedComponent store={store} client={horizon} />);
   });
 });
@@ -143,6 +199,39 @@ describe('#mapDataToProps(function):', (test) => {
       }
     })(() => <div></div>);
     mount(<SubscribedComponent store={store} client={horizon} />);
+  });
+
+  // NB. This doesn't seem to be part of the horizon client api anymore
+  // and was renamed to disconnect https://github.com/rethinkdb/horizon/issues/324
+  test('it should call dispose for returned queryParams on unmount', (t) => {
+    t.plan(1);
+
+    function TestHorizonMock() {
+      return (data) => ({
+        watch() {
+          return {
+            forEach(fn) {
+              fn(data);
+              return {
+                dispose() {
+                  t.pass();
+                }
+              };
+            }
+          };
+        }
+      });
+    }
+
+    const horizon = TestHorizonMock();
+    const store = createStore((state) => state);
+    const SubscribedComponent = subscribe({
+      mapDataToProps: () => ({
+        widgets: (hz) => hz('widgets')
+      })
+    })(() => <div></div>);
+    const component = mount(<SubscribedComponent store={store} client={horizon} />);
+    component.unmount();
   });
 
   test('it should call findAll for returned queryParams', (t) => {

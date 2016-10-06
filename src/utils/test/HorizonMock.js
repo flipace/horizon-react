@@ -11,9 +11,8 @@ const horizonSub = (data) => ({
 
 function HorizonMock(opts = {}) {
   const hzInterface = () => ({
-    findAll() {
-      return horizonSub(opts.data);
-    },
+    findAll() {},
+    _query: Math.random(),
     ...horizonSub(opts.data)
   });
 
@@ -22,6 +21,7 @@ function HorizonMock(opts = {}) {
       return { type: 'ready' };
     }
   });
+  hzInterface.connect = () => {};
   hzInterface.onReady = () => {};
   hzInterface.onDisconnected = () => {};
   hzInterface.onSocketError = () => {};

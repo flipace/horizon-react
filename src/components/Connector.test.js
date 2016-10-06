@@ -1,11 +1,50 @@
 import { describe } from 'ava-spec';
 import React from 'react';
+import proxyquire from 'proxyquire';
 import { mount } from 'enzyme';
 
 import HorizonMock from '../utils/test/HorizonMock';
 import { createStore } from 'redux';
 
 import Connector from './Connector';
+
+describe('Props', (test) => {
+  test('it should load horizon itself if not passed an instance', (t) => {
+    t.plan(1);
+    const store = createStore((state) => state);
+    const MockedConnector = proxyquire('./Connector', {
+      '@horizon/client'(opts) {
+        t.pass();
+        return HorizonMock(opts);
+      }
+    }).default;
+    mount(
+      <MockedConnector store={store}>
+        <div />
+      </MockedConnector>
+    );
+  });
+
+  test('it should pass horizonProps to the horizon constructor', (t) => {
+    t.plan(1);
+    const store = createStore((state) => state);
+    const horizonProps = {};
+    const MockedConnector = proxyquire('./Connector', {
+      '@horizon/client'(opts) {
+        t.true(opts === horizonProps);
+        return HorizonMock(opts);
+      }
+    }).default;
+    mount(
+      <MockedConnector
+        store={store}
+        horizonProps={horizonProps}
+      >
+        <div />
+      </MockedConnector>
+    );
+  });
+});
 
 describe('Children render:', (test) => {
   const DIV_ID = 'content';
