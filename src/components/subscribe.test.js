@@ -171,6 +171,39 @@ describe('#mapDataToProps(function):', (test) => {
     mount(<SubscribedComponent store={store} client={horizon} />);
   });
 
+  // NB. This doesn't seem to be part of the horizon client api anymore
+  // and was renamed to disconnect https://github.com/rethinkdb/horizon/issues/324
+  test('it should call dispose for returned queryParams on unmount', (t) => {
+    t.plan(1);
+
+    function TestHorizonMock() {
+      return (data) => ({
+        watch() {
+          return {
+            forEach(fn) {
+              fn(data);
+              return {
+                dispose() {
+                  t.pass();
+                }
+              };
+            }
+          };
+        }
+      });
+    }
+
+    const horizon = TestHorizonMock();
+    const store = createStore((state) => state);
+    const SubscribedComponent = subscribe({
+      mapDataToProps: () => ({
+        widgets: (hz) => hz('widgets')
+      })
+    })(() => <div></div>);
+    const component = mount(<SubscribedComponent store={store} client={horizon} />);
+    component.unmount();
+  });
+
   test('it should call findAll for returned queryParams', (t) => {
     t.plan(1);
     const query = { name: 'test' };
