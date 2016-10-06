@@ -80,12 +80,12 @@
     "react-addons-test-utils": "^15.3.0",
     "react-dom": "^15.3.0",
     "react-redux": "^4.4.5",
+    "redux": "^3.5.2",
     "webpack": "^1.13.2"
   },
   "dependencies": {
     "is-plain-object": "^2.0.1",
-    "lodash.isequal": "^4.1.4",
-    "redux": "^3.5.2"
+    "lodash.isequal": "^4.1.4"
   },
   "peerDependencies": {
     "@horizon/client": "^1.0.1 || ^2.0.0",
