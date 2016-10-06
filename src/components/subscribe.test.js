@@ -14,7 +14,8 @@ describe('no options:', (test) => {
     const horizon = HorizonMock();
     const store = createStore((state) => state);
     const SubscribedComponent = subscribe()(() => <div></div>);
-    mount(<SubscribedComponent store={store} client={horizon} />);
+    const mounted = mount(<SubscribedComponent store={store} client={horizon} />);
+    mounted.setProps({ horizonProps:{} });
     t.pass();
   });
 });
