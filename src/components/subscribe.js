@@ -258,7 +258,7 @@ export default function subscribe(opts = {}) {
       };
     }
 
-    if (reduxIsAvailable) {
+    if (reduxIsAvailable()) {
       /**
        * Pass options to redux "connect" so there's no need to use
        * two wrappers in application code.
