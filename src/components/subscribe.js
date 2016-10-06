@@ -126,8 +126,8 @@ export default function subscribe(opts = {}) {
        */
       unsubscribe(updateState = true) {
         Object.keys(this.subscriptions).forEach(k => {
-          if (this.subscriptions[k].dispose) {
-            this.subscriptions[k].dispose();
+          if (this.subscriptions[k].subscription.dispose) {
+            this.subscriptions[k].subscription.dispose();
           }
         });
 
