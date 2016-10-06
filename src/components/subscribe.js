@@ -2,6 +2,8 @@ import isEqual from 'lodash.isequal';
 import isPlainObject from 'is-plain-object';
 import { Component, PropTypes, createElement } from 'react';
 
+import requireResolve from '../utils/requireResolve';
+
 const emptyArray = [];
 const getDisplayName = WrappedComponent => WrappedComponent.displayName ||
   WrappedComponent.name ||
@@ -9,8 +11,8 @@ const getDisplayName = WrappedComponent => WrappedComponent.displayName ||
 
 const reduxIsAvailable = () => {
   try {
-    require.resolve('redux');
-    require.resolve('react-redux');
+    requireResolve('redux');
+    requireResolve('react-redux');
     return true;
   } catch (e) {} // eslint-disable-line
 
