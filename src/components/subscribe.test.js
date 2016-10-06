@@ -1,5 +1,6 @@
 import { describe } from 'ava-spec';
 import React from 'react';
+import proxyquire from 'proxyquire';
 import { mount } from 'enzyme';
 
 import HorizonMock, { horizonSub } from '../utils/test/HorizonMock';
@@ -14,6 +15,31 @@ describe('no options:', (test) => {
     const store = createStore((state) => state);
     const SubscribedComponent = subscribe()(() => <div></div>);
     mount(<SubscribedComponent store={store} client={horizon} />);
+    t.pass();
+  });
+});
+
+describe('no redux:', (test) => {
+  test('it should not throw an error when redux is not found', (t) => {
+    t.plan(1);
+    const wrongSubscribe = proxyquire('./subscribe', {
+      '../utils/requireResolve': {
+        default: (path) => {
+          if (path === 'redux') {
+            throw new Error(`Cannot find module '${path}'`);
+          }
+          return require.resolve(path);
+        }
+      }
+    }).default;
+    const horizon = HorizonMock();
+    const SubscribedComponent = wrongSubscribe()(() => <div></div>);
+    const mockedStore = {
+      subscribe() {},
+      dispatch() {},
+      getState: () => ({})
+    };
+    mount(<SubscribedComponent store={mockedStore} client={horizon} />);
     t.pass();
   });
 
