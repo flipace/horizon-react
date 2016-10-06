@@ -11,9 +11,7 @@ const horizonSub = (data) => ({
 
 function HorizonMock(opts = {}) {
   const hzInterface = () => ({
-    findAll() {
-      return horizonSub(opts.data);
-    },
+    findAll() {},
     ...horizonSub(opts.data)
   });
 
