@@ -22,6 +22,7 @@ function HorizonMock(opts = {}) {
       return { type: 'ready' };
     }
   });
+  hzInterface.connect = () => {};
   hzInterface.onReady = () => {};
   hzInterface.onDisconnected = () => {};
   hzInterface.onSocketError = () => {};
