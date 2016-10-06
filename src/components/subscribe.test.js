@@ -102,6 +102,35 @@ describe('#mapDataToProps(array):', (test) => {
     })(() => <div></div>);
     mount(<SubscribedComponent store={store} client={horizon} />);
   });
+
+  test('it should use the last subscription for the same name', (t) => {
+    t.plan(1);
+    const store = createStore((state) => state);
+    const widgets2 = [{ id: 2, }];
+    const horizon = HorizonMock();
+    const SubscribedComponent = subscribe({
+      mapDataToProps: [
+        {
+          name: 'widgets',
+          query: () => {
+            const hz = HorizonMock({ data: [{ id: 1 }] });
+            return hz('widgets');
+          }
+        },
+        {
+          name: 'widgets',
+          query: () => {
+            const hz = HorizonMock({ data: widgets2 });
+            return hz('widget2');
+          }
+        }
+      ]
+    })((props) => {
+      t.true(props.widgets === widgets2);
+      return null;
+    });
+    mount(<SubscribedComponent store={store} client={horizon} />);
+  });
 });
 
 describe('#mapDataToProps(plainObject):', (test) => {
